@@ -34,8 +34,6 @@ void main(List<String> arguments) async {
   String rootPath = argResults['root-path'];
   String templateArbFile = argResults['template-arb-file'];
 
-  print(templateArbFile);
-
   await l10m.generateRootTranslations(
       rootPath: rootPath,
       outputFolder: outputFolder,
