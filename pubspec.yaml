@@ -1,7 +1,7 @@
 name: l10m
 description: A library for modular localization in Dart.
 version: 0.0.1
-# repository: https://github.com/my_org/my_repo
+repository: https://github.com/augustodia/l10m
 
 environment:
   sdk: ^3.4.1
