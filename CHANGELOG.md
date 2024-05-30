@@ -9,3 +9,7 @@
 ## 0.0.3
 
 - Remove unnecessary codes
+
+## 0.1.0
+
+- Apply the new structure for the library

@@ -25,7 +25,7 @@ void main() {
     });
 
     test('when checkLocalizationKeys is called withou exception', () async {
-      final file = File('${directory.path}/app_en.arb');
+      final file = File('${directory.path}/intl_en.arb');
       await file.writeAsString('{"key1": "value1", "key2": "value2"}');
 
       final file2 = File('${directory.path}/app_pt.arb');
@@ -34,11 +34,11 @@ void main() {
       final file3 = File('${directory.path}/app_es.arb');
       await file3.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      expect(checkLocalizationKeys(directory.path, 'app_en.arb'), completes);
+      expect(checkLocalizationKeys(directory.path, 'intl_en.arb'), completes);
     });
 
     test('when checkLocalizationKeys is called with exception', () async {
-      final file = File('${directory.path}/app_en.arb');
+      final file = File('${directory.path}/intl_en.arb');
       await file.writeAsString('{"key1": "value1", "key2": "value2"}');
 
       final file2 = File('${directory.path}/app_pt.arb');
@@ -48,7 +48,7 @@ void main() {
       await file3.writeAsString('{"key1": "value1", "key2": "value2"}');
 
       expect(
-        checkLocalizationKeys(directory.path, 'app_en.arb'),
+        checkLocalizationKeys(directory.path, 'intl_en.arb'),
         throwsA(isA<KeyNotFoundException>()
             .having((e) => e.keyNotFound, 'keyNotFound', 'key2')),
       );
@@ -58,7 +58,7 @@ void main() {
       final l10nDirectory = Directory('${directory.path}/l10n');
       l10nDirectory.createSync();
 
-      final file = File('${l10nDirectory.path}/app_en.arb');
+      final file = File('${l10nDirectory.path}/intl_en.arb');
       await file.writeAsString('{"key1": "value1", "key2": "value2"}');
 
       final file2 = File('${l10nDirectory.path}/app_pt.arb');
@@ -67,13 +67,15 @@ void main() {
       final file3 = File('${l10nDirectory.path}/app_es.arb');
       await file3.writeAsString('{"key1": "value1", "key2": "value2"}');
 
+      final outputPath = 'l10n/output';
+
       await generateRootTranslations(
           rootPath: directory.path,
-          outputFolder: 'l10n/generated',
-          templateArbFile: 'app_en.arb');
+          outputFolder: outputPath,
+          templateArbFile: 'intl_en.arb');
 
       final generatedFile =
-          File('${directory.path}/output/app_localizations.dart');
+          File('${directory.path}/$outputPath/root_localizations.dart');
       expect(await generatedFile.exists(), isTrue);
     });
 
@@ -81,7 +83,7 @@ void main() {
       final l10nDirectory = Directory('${directory.path}/l10n');
       l10nDirectory.createSync();
 
-      final file = File('${l10nDirectory.path}/app_en.arb');
+      final file = File('${l10nDirectory.path}/intl_en.arb');
       await file.writeAsString('{"key1": "value1", "key2": "value2"}');
 
       final file2 = File('${l10nDirectory.path}/app_pt.arb');
@@ -91,7 +93,7 @@ void main() {
       await file3.writeAsString('{"key1": "value1", "key2": "value2"}');
 
       final generatedFile =
-          File('${directory.path}/output/app_localizations.dart');
+          File('${directory.path}/output/root_localizations.dart');
       expect(await generatedFile.exists(), isFalse);
     });
 
@@ -106,7 +108,7 @@ void main() {
       final l10nDirectory = Directory('${featureDirectory.path}/l10n');
       l10nDirectory.createSync();
 
-      final file = File('${l10nDirectory.path}/app_en.arb');
+      final file = File('${l10nDirectory.path}/intl_en.arb');
       await file.writeAsString('{"key1": "value1", "key2": "value2"}');
 
       final file2 = File('${l10nDirectory.path}/app_pt.arb');
@@ -118,7 +120,7 @@ void main() {
       await generateModulesTranslations(
           modulePath: moduleDirectory.path,
           outputFolder: 'output',
-          templateArbFile: 'app_en.arb');
+          templateArbFile: 'intl_en.arb');
 
       final generatedFile =
           File('${featureDirectory.path}/output/feature_localizations.dart');
@@ -135,7 +137,7 @@ void main() {
       final l10nDirectory = Directory('${featureDirectory.path}/l10n');
       l10nDirectory.createSync();
 
-      final file = File('${l10nDirectory.path}/app_en.arb');
+      final file = File('${l10nDirectory.path}/intl_en.arb');
       await file.writeAsString('{"key1": "value1", "key2": "value2"}');
 
       final file2 = File('${l10nDirectory.path}/app_pt.arb');

@@ -63,6 +63,7 @@ Future<void> generateModulesTranslations(
       print(
           '❌ Failed to generate translations because some keys were missing in the files');
     } catch (e) {
+      print(e);
       print('❌ Failed to generate translations for "$featureName" folder');
     }
   }
@@ -91,7 +92,7 @@ Future<void> generateRootTranslations(
         '--template-arb-file',
         templateArbFile,
         '--output-localization-file',
-        'app_localizations.dart',
+        'root_localizations.dart',
         '--no-nullable-getter'
       ]);
 
@@ -113,6 +114,7 @@ Future<void> generateRootTranslations(
     print(
         '❌ Failed to generate translations because some keys were missing in the files');
   } catch (e) {
+    print(e);
     print('❌ Failed to generate translations for root folder');
   }
 }

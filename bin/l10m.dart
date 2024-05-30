@@ -18,7 +18,7 @@ void main(List<String> arguments) async {
             'Path to the root folder where the localization files are located')
     ..addOption('template-arb-file',
         abbr: 't',
-        defaultsTo: 'app_en.arb',
+        defaultsTo: 'intl_en.arb',
         help: 'Path to the template arb file')
     ..addFlag('help', abbr: 'h', help: 'Show the help', negatable: false);
 
