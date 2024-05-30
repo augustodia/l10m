@@ -8,7 +8,10 @@ String capitalize(String text) {
   return text[0].toUpperCase() + text.substring(1);
 }
 
-Future<void> generateModulesTranslations({required String modulePath, required String outputFolder, required String templateArbFile}) async {
+Future<void> generateModulesTranslations(
+    {required String modulePath,
+    required String outputFolder,
+    required String templateArbFile}) async {
   // List of all modules inside the folder
   var dir = Directory(modulePath);
   List<FileSystemEntity> features = dir.listSync();
@@ -43,7 +46,8 @@ Future<void> generateModulesTranslations({required String modulePath, required S
           '--no-nullable-getter'
         ]);
 
-        if (result.stdout.toString().isEmpty && result.stderr.toString().isEmpty) {
+        if (result.stdout.toString().isEmpty &&
+            result.stderr.toString().isEmpty) {
           print('✅ Generated translations for "$featureName" folder');
           return;
         }
@@ -52,17 +56,22 @@ Future<void> generateModulesTranslations({required String modulePath, required S
         if (result.stderr.toString().isNotEmpty) print(result.stderr);
         print('❌ Failed to generate translations for "$featureName" folder');
       } else {
-        print('▶▶ Skipped translations for "$featureName" folder because no translations where found in the specified path');
+        print(
+            '▶▶ Skipped translations for "$featureName" folder because no translations where found in the specified path');
       }
     } on KeyNotFoundException {
-      print('❌ Failed to generate translations because some keys were missing in the files');
+      print(
+          '❌ Failed to generate translations because some keys were missing in the files');
     } catch (e) {
       print('❌ Failed to generate translations for "$featureName" folder');
     }
   }
 }
 
-Future<void> generateRootTranslations({required String rootPath, required String outputFolder, required String templateArbFile}) async {
+Future<void> generateRootTranslations(
+    {required String rootPath,
+    required String outputFolder,
+    required String templateArbFile}) async {
   final outputPath = '$rootPath/$outputFolder';
   final rootPathDir = '$rootPath/l10n';
   try {
@@ -86,7 +95,8 @@ Future<void> generateRootTranslations({required String rootPath, required String
         '--no-nullable-getter'
       ]);
 
-      if (result.stdout.toString().isEmpty && result.stderr.toString().isEmpty) {
+      if (result.stdout.toString().isEmpty &&
+          result.stderr.toString().isEmpty) {
         print('✅ Generated translations for root folder');
         return;
       }
@@ -96,10 +106,12 @@ Future<void> generateRootTranslations({required String rootPath, required String
 
       print('❌ Failed to generate translations for root folder');
     } else {
-      print('▶▶ Skipped translations for root folder because no translations where found in the specified path');
+      print(
+          '▶▶ Skipped translations for root folder because no translations where found in the specified path');
     }
   } on KeyNotFoundException {
-    print('❌ Failed to generate translations because some keys were missing in the files');
+    print(
+        '❌ Failed to generate translations because some keys were missing in the files');
   } catch (e) {
     print('❌ Failed to generate translations for root folder');
   }
@@ -108,7 +120,8 @@ Future<void> generateRootTranslations({required String rootPath, required String
 Future<void> checkLocalizationKeys(String path, String templateArbFile) async {
   try {
     final directory = Directory(path);
-    final arbFiles = directory.listSync().where((file) => file.path.endsWith('.arb'));
+    final arbFiles =
+        directory.listSync().where((file) => file.path.endsWith('.arb'));
 
     // Read the template file and extract all keys
     final templateContent = await File('$path/$templateArbFile').readAsString();
@@ -135,10 +148,12 @@ Future<void> checkLocalizationKeys(String path, String templateArbFile) async {
 
     if (missingKeys.isNotEmpty) {
       for (final entry in missingKeys.entries) {
-        print('The key "${entry.key}" is missing in the following files: ${entry.value.join(', ')}');
+        print(
+            'The key "${entry.key}" is missing in the following files: ${entry.value.join(', ')}');
       }
 
-      throw KeyNotFoundException(keyNotFound: missingKeys.keys.first, files: missingKeys.values.first);
+      throw KeyNotFoundException(
+          keyNotFound: missingKeys.keys.first, files: missingKeys.values.first);
     }
   } on KeyNotFoundException {
     rethrow;

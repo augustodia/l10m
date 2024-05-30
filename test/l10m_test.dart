@@ -49,7 +49,8 @@ void main() {
 
       expect(
         checkLocalizationKeys(directory.path, 'app_en.arb'),
-        throwsA(isA<KeyNotFoundException>().having((e) => e.keyNotFound, 'keyNotFound', 'key2')),
+        throwsA(isA<KeyNotFoundException>()
+            .having((e) => e.keyNotFound, 'keyNotFound', 'key2')),
       );
     });
 
@@ -66,9 +67,13 @@ void main() {
       final file3 = File('${l10nDirectory.path}/app_es.arb');
       await file3.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      await generateRootTranslations(rootPath: directory.path, outputFolder: 'l10n/generated', templateArbFile: 'app_en.arb');
+      await generateRootTranslations(
+          rootPath: directory.path,
+          outputFolder: 'l10n/generated',
+          templateArbFile: 'app_en.arb');
 
-      final generatedFile = File('${directory.path}/output/app_localizations.dart');
+      final generatedFile =
+          File('${directory.path}/output/app_localizations.dart');
       expect(await generatedFile.exists(), isTrue);
     });
 
@@ -85,11 +90,13 @@ void main() {
       final file3 = File('${l10nDirectory.path}/app_es.arb');
       await file3.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      final generatedFile = File('${directory.path}/output/app_localizations.dart');
+      final generatedFile =
+          File('${directory.path}/output/app_localizations.dart');
       expect(await generatedFile.exists(), isFalse);
     });
 
-    test('when generateModulesTranslations is called withou exception', () async {
+    test('when generateModulesTranslations is called withou exception',
+        () async {
       final moduleDirectory = Directory('${directory.path}/modules');
       moduleDirectory.createSync();
 
@@ -108,9 +115,13 @@ void main() {
       final file3 = File('${l10nDirectory.path}/app_es.arb');
       await file3.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      await generateModulesTranslations(modulePath: moduleDirectory.path, outputFolder: 'output', templateArbFile: 'app_en.arb');
+      await generateModulesTranslations(
+          modulePath: moduleDirectory.path,
+          outputFolder: 'output',
+          templateArbFile: 'app_en.arb');
 
-      final generatedFile = File('${featureDirectory.path}/output/feature_localizations.dart');
+      final generatedFile =
+          File('${featureDirectory.path}/output/feature_localizations.dart');
       expect(await generatedFile.exists(), isTrue);
     });
 
@@ -133,7 +144,8 @@ void main() {
       final file3 = File('${l10nDirectory.path}/app_es.arb');
       await file3.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      final generatedFile = File('${featureDirectory.path}/output/feature_localizations.dart');
+      final generatedFile =
+          File('${featureDirectory.path}/output/feature_localizations.dart');
       expect(await generatedFile.exists(), isFalse);
     });
   });
