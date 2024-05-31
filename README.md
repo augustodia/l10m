@@ -7,14 +7,8 @@
 To use this library, add `l10m` as a dependency in your `pubspec.yaml` file.
 
 ```yaml
-dependencies:
+dev_dependencies:
   l10m: any
-```
-
-Then, import the library in your code:
-
-```dart
-import 'package:l10m/l10m.dart';
 ```
 
 ## Command-line Interface
