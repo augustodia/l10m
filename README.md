@@ -85,6 +85,93 @@ lib/
 --------intl_es.arb  # File previously located in the module folder
 ```
 
+After generating the files, you can combine them all into a common class to be used in the application:
+
+translate.dart
+
+```dart
+import 'package:flutter/material.dart';
+
+import 'l10n/generated/root_localizations.dart';
+import 'modules/module1/l10n/generated/module1_localizations.dart';
+import 'modules/module2/l10n/generated/module2_localizations.dart';
+import 'modules/module3/l10n/generated/module3_localizations.dart';
+
+class Translate {
+  static List<LocalizationsDelegate> localizationsDelegates = [
+    RootLocalizationsDelegate(),
+    Module1LocalizationsDelegate(),
+    Module2LocalizationsDelegate(),
+    Module3LocalizationsDelegate(),
+  ];
+
+  static List<Locale> supportedLocales = [
+    const Locale('en'),
+    const Locale('es'),
+  ];
+
+  static RootLocalizations root(BuildContext context) {
+    return RootLocalizations.of(context);
+  }
+
+  static Module1Localizations module1(BuildContext context) {
+    return Module1Localizations.of(context);
+  }
+
+  static Module2Localizations module2(BuildContext context) {
+    return Module2Localizations.of(context);
+  }
+
+  static Module3Localizations module3(BuildContext context) {
+    return Module3Localizations.of(context);
+  }
+}
+```
+
+main.dart
+
+```dart
+import 'package:flutter/material.dart';
+
+import 'translate.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      localizationsDelegates: Translate.localizationsDelegates,
+      supportedLocales: Translate.supportedLocales,
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(Translate.root(context).appTitle),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(Translate.module1(context).title),
+            Text(Translate.module2(context).title),
+            Text(Translate.module3(context).title),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
 In this structure:
 
 - The `lib/l10n` folder contains general translations shared across modules.
@@ -97,3 +184,7 @@ Contributions are welcome! If you have any suggestions, issues, or improvements,
 ## License
 
 This project is licensed under the MIT License. See the `LICENSE` file for details.
+
+```
+
+```
