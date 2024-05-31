@@ -13,3 +13,7 @@
 ## 0.1.0
 
 - Apply the new structure for the library
+
+## 0.1.1
+
+- Update README.md
