@@ -11,6 +11,8 @@ void main(List<String> arguments) async {
         abbr: 'o',
         defaultsTo: 'l10n/generated',
         help: 'Output folder for the generated files')
+    ..addFlag('generate-root',
+        negatable: true, help: 'Generate root translations', defaultsTo: true)
     ..addOption('root-path',
         abbr: 'r',
         defaultsTo: 'lib',
@@ -31,13 +33,17 @@ void main(List<String> arguments) async {
 
   String modulePath = argResults['module-path'];
   String outputFolder = argResults['output-folder'];
+  bool generateRoot = argResults['generate-root'];
   String rootPath = argResults['root-path'];
   String templateArbFile = argResults['template-arb-file'];
 
-  await l10m.generateRootTranslations(
-      rootPath: rootPath,
-      outputFolder: outputFolder,
-      templateArbFile: templateArbFile);
+  if (generateRoot) {
+    await l10m.generateRootTranslations(
+        rootPath: rootPath,
+        outputFolder: outputFolder,
+        templateArbFile: templateArbFile);
+  }
+
   l10m.generateModulesTranslations(
       modulePath: modulePath,
       outputFolder: outputFolder,

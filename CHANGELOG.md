@@ -26,3 +26,7 @@
 
 - Update README.md
 - Upgrade dependencies
+
+# 0.1.4
+
+- Added flag --no-generate-root to disable the generation of the root folder
