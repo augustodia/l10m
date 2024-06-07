@@ -22,6 +22,10 @@ void main(List<String> arguments) async {
         abbr: 't',
         defaultsTo: 'intl_en.arb',
         help: 'Path to the template arb file')
+    ..addFlag('nullable-getter',
+        help: 'Generate the getter methods as nullable',
+        negatable: true,
+        defaultsTo: true)
     ..addFlag('help', abbr: 'h', help: 'Show the help', negatable: false);
 
   var argResults = parser.parse(arguments);
@@ -36,6 +40,7 @@ void main(List<String> arguments) async {
   bool generateRoot = argResults['generate-root'];
   String rootPath = argResults['root-path'];
   String templateArbFile = argResults['template-arb-file'];
+  bool nullableGetter = argResults['nullable-getter'];
 
   if (generateRoot) {
     await l10m.generateRootTranslations(
@@ -47,5 +52,6 @@ void main(List<String> arguments) async {
   l10m.generateModulesTranslations(
       modulePath: modulePath,
       outputFolder: outputFolder,
-      templateArbFile: templateArbFile);
+      templateArbFile: templateArbFile,
+      nullableGetter: nullableGetter);
 }

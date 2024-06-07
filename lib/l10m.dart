@@ -8,10 +8,26 @@ String capitalize(String text) {
   return text[0].toUpperCase() + text.substring(1);
 }
 
-Future<void> generateModulesTranslations(
-    {required String modulePath,
-    required String outputFolder,
-    required String templateArbFile}) async {
+String underscoreToCamelCase(String text) {
+  return text.split('_').map((e) => capitalize(e)).join();
+}
+
+String camelCaseToUnderscore(String text) {
+  return text.replaceAllMapped(RegExp(r'[A-Z]'), (match) {
+    if (match.start == 0) {
+      return match.group(0)!.toLowerCase();
+    } else {
+      return '_${match.group(0)!.toLowerCase()}';
+    }
+  });
+}
+
+Future<void> generateModulesTranslations({
+  required String modulePath,
+  required String outputFolder,
+  required String templateArbFile,
+  required bool nullableGetter,
+}) async {
   // List of all modules inside the folder
   var dir = Directory(modulePath);
   List<FileSystemEntity> features = dir.listSync();
@@ -38,12 +54,12 @@ Future<void> generateModulesTranslations(
           outputPath,
           '--no-synthetic-package',
           '--output-class',
-          '${capitalize(featureName)}Localizations',
+          '${underscoreToCamelCase(capitalize(featureName))}Localizations',
           '--template-arb-file',
           templateArbFile,
           '--output-localization-file',
-          '${featureName}_localizations.dart',
-          '--no-nullable-getter'
+          '${camelCaseToUnderscore(featureName)}_localizations.dart',
+          if (!nullableGetter) '--no-nullable-getter'
         ]);
 
         if (result.stdout.toString().isEmpty &&

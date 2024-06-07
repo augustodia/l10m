@@ -29,4 +29,8 @@
 
 # 0.1.4
 
-- Added flag --no-generate-root to disable the generation of the root folder
+- Added flag --[no-]generate-root to disable the generation of the root folder
+
+# 0.2.0
+
+- (Breaking changes) Added flag --[no-]nullable-getter to enable or disable the nullable getter. By default is true (nullable getters)

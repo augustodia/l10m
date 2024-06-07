@@ -118,12 +118,54 @@ void main() {
       await file3.writeAsString('{"key1": "value1", "key2": "value2"}');
 
       await generateModulesTranslations(
-          modulePath: moduleDirectory.path,
-          outputFolder: 'output',
-          templateArbFile: 'intl_en.arb');
+        modulePath: moduleDirectory.path,
+        outputFolder: 'output',
+        templateArbFile: 'intl_en.arb',
+        nullableGetter: true,
+      );
 
       final generatedFile =
           File('${featureDirectory.path}/output/feature_localizations.dart');
+      expect(await generatedFile.exists(), isTrue);
+    });
+
+    test(
+        'when generateModulesTranslations generates underscored file name for camelCase module directory',
+        () async {
+      final moduleDirectory = Directory('${directory.path}/modules');
+      moduleDirectory.createSync();
+
+      final featureName = 'FeatureToTest';
+
+      final featureDirectory =
+          Directory('${moduleDirectory.path}/$featureName');
+      featureDirectory.createSync();
+
+      final l10nDirectory = Directory('${featureDirectory.path}/l10n');
+      l10nDirectory.createSync();
+
+      final file = File('${l10nDirectory.path}/intl_en.arb');
+      await file.writeAsString('{"key1": "value1", "key2": "value2"}');
+
+      final file2 = File('${l10nDirectory.path}/app_pt.arb');
+      await file2.writeAsString('{"key1": "value1", "key2": "value2"}');
+
+      final file3 = File('${l10nDirectory.path}/app_es.arb');
+      await file3.writeAsString('{"key1": "value1", "key2": "value2"}');
+
+      await generateModulesTranslations(
+        modulePath: moduleDirectory.path,
+        outputFolder: 'output',
+        templateArbFile: 'intl_en.arb',
+        nullableGetter: true,
+      );
+
+      final generatedFile = File(
+          '${featureDirectory.path}/output/feature_to_test_localizations.dart');
+
+      final fileName = generatedFile.path.split('/').last;
+
+      expect(fileName, equals('feature_to_test_localizations.dart'));
       expect(await generatedFile.exists(), isTrue);
     });
 
