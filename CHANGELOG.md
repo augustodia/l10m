@@ -27,10 +27,16 @@
 - Update README.md
 - Upgrade dependencies
 
-# 0.1.4
+## 0.1.4
 
-- Added flag --[no-]generate-root to disable the generation of the root folder
+- Added flag `--[no-]generate-root` to disable the generation of the root folder
 
-# 0.2.0
+## 0.2.0
 
-- (Breaking changes) Added flag --[no-]nullable-getter to enable or disable the nullable getter. By default is true (nullable getters)
+- (Breaking changes) Added flag `--[no-]nullable-getter` to enable or disable the nullable getter. By default is true (nullable getters)
+
+## 0.3.0
+
+- Added flag `--generate-only-root` to generate only the root folder
+- Added flag `--generate-only-module` to generate only the module folder
+- Added option `-generate-module` or `-g` to generate the module folder. This option is only active if the flag `--generate-only-module` is active.
