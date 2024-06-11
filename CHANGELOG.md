@@ -44,3 +44,7 @@
 ## 0.3.1 - 0.3.5
 
 - Improvments erros messages
+
+## 0.4.0
+
+- Added support to Windows

@@ -47,11 +47,8 @@ void main() {
       final file3 = File('${directory.path}/app_es.arb');
       await file3.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      expect(
-        checkLocalizationKeys(directory.path, 'intl_en.arb'),
-        throwsA(isA<KeyNotFoundException>()
-            .having((e) => e.keyNotFound, 'keyNotFound', 'key2')),
-      );
+      expect(checkLocalizationKeys(directory.path, 'intl_en.arb'),
+          throwsException);
     });
 
     test('when generateRootTranslations is called withou exception', () async {

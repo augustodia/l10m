@@ -1,6 +1,7 @@
 // Função para capitalizar a primeira letra de uma string
 import 'dart:convert';
 import 'dart:io';
+import 'package:path/path.dart' as path;
 
 import 'package:l10m/errors/key_not_found_exception.dart';
 
@@ -30,16 +31,19 @@ Future<void> generateModulesTranslations({
 }) async {
   var errors = <String>[];
   // List of all modules inside the folder
-  var dir = Directory(modulePath);
+  final modulePathNormalized = path.normalize(modulePath);
+
+  var dir = Directory(modulePathNormalized);
   List<FileSystemEntity> features = dir.listSync();
 
   // Loop through each module
   for (var feature in features) {
     // Path to the current module
     String featureName = feature.path.split('/').last;
-    String featurePath = '$modulePath/$featureName/l10n';
+    String featurePath = path.normalize('$modulePath/$featureName/l10n');
 
-    String outputPath = '$modulePath/$featureName/$outputFolder';
+    String outputPath =
+        path.normalize('$modulePath/$featureName/$outputFolder');
 
     try {
       // Verify if the module localization folder exists
@@ -102,9 +106,10 @@ Future<void> generateOnlyModuleTranslations({
 }) async {
   var errors = <String>[];
   // Path to the current module
-  String featurePath = '$modulePath/$generateModule/l10n';
+  String featurePath = path.normalize('$modulePath/$generateModule/l10n');
 
-  String outputPath = '$modulePath/$generateModule/$outputFolder';
+  String outputPath =
+      path.normalize('$modulePath/$generateModule/$outputFolder');
 
   try {
     // Verify if the module localization folder exists
@@ -164,8 +169,8 @@ Future<void> generateRootTranslations({
 }) async {
   var errors = <String>[];
 
-  final outputPath = '$rootPath/$outputFolder';
-  final rootPathDir = '$rootPath/l10n';
+  final outputPath = path.normalize('$rootPath/$outputFolder');
+  final rootPathDir = path.normalize('$rootPath/l10n');
   try {
     if (await Directory(rootPathDir).exists()) {
       print('🔄 Generating translations for root folder');
@@ -216,16 +221,19 @@ Future<void> generateRootTranslations({
   }
 }
 
-Future<void> checkLocalizationKeys(String path, String templateArbFile) async {
+Future<void> checkLocalizationKeys(
+    String folderPath, String templateArbFile) async {
   var errors = <String>[];
 
   try {
-    final directory = Directory(path);
+    final directory = Directory(folderPath);
     final arbFiles =
         directory.listSync().where((file) => file.path.endsWith('.arb'));
 
     // Read the template file and extract all keys
-    final templateContent = await File('$path/$templateArbFile').readAsString();
+    final templateContent =
+        await File(path.normalize('$folderPath/$templateArbFile'))
+            .readAsString();
     final templateJson = jsonDecode(templateContent) as Map<String, dynamic>;
     final templateKeys = templateJson.keys.toSet();
 
