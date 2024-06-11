@@ -197,7 +197,6 @@ Future<void> generateRootTranslations({
         templateArbFile,
         '--output-localization-file',
         'root_localizations.dart',
-        '--no-nullable-getter'
       ]);
 
       if (result.stdout.toString().isEmpty &&
