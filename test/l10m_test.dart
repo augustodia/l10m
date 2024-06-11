@@ -192,5 +192,46 @@ void main() {
           File('${featureDirectory.path}/output/feature_localizations.dart');
       expect(await generatedFile.exists(), isFalse);
     });
+
+    test(
+        'when generateOnlyModule only specified module translations are generated',
+        () async {
+      final moduleDirectory = Directory('${directory.path}/modules');
+      moduleDirectory.createSync();
+
+      final featureDirectory = Directory('${moduleDirectory.path}/feature');
+      featureDirectory.createSync();
+
+      final feature2Directory = Directory('${moduleDirectory.path}/feature2');
+      feature2Directory.createSync();
+
+      final l10nDirectory = Directory('${featureDirectory.path}/l10n');
+      l10nDirectory.createSync();
+
+      final file = File('${l10nDirectory.path}/intl_en.arb');
+      await file.writeAsString('{"key1": "value1", "key2": "value2"}');
+
+      final file2 = File('${l10nDirectory.path}/app_pt.arb');
+      await file2.writeAsString('{"key1": "value1", "key2": "value2"}');
+
+      final file3 = File('${l10nDirectory.path}/app_es.arb');
+      await file3.writeAsString('{"key1": "value1", "key2": "value2"}');
+
+      await generateOnlyModuleTranslations(
+        modulePath: moduleDirectory.path,
+        outputFolder: 'output',
+        templateArbFile: 'intl_en.arb',
+        nullableGetter: true,
+        generateModule: 'feature',
+      );
+
+      final generatedFile =
+          File('${featureDirectory.path}/output/feature_localizations.dart');
+      expect(await generatedFile.exists(), isTrue);
+
+      final notGeneratedFile =
+          File('${feature2Directory.path}/output/feature2_localizations.dart');
+      expect(await notGeneratedFile.exists(), isFalse);
+    });
   });
 }

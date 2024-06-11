@@ -26,6 +26,24 @@ void main(List<String> arguments) async {
         help: 'Generate the getter methods as nullable',
         negatable: true,
         defaultsTo: true)
+    ..addOption(
+      'generate-module',
+      abbr: 'g',
+      help: 'Generate the module translations',
+      defaultsTo: null,
+    )
+    ..addFlag(
+      'generate-only-root',
+      help: 'Generate only the root translations',
+      negatable: false,
+      defaultsTo: true,
+    )
+    ..addFlag(
+      'generate-only-module',
+      help: 'Generate only the module translations',
+      negatable: false,
+      defaultsTo: false,
+    )
     ..addFlag('help', abbr: 'h', help: 'Show the help', negatable: false);
 
   var argResults = parser.parse(arguments);
@@ -41,15 +59,31 @@ void main(List<String> arguments) async {
   String rootPath = argResults['root-path'];
   String templateArbFile = argResults['template-arb-file'];
   bool nullableGetter = argResults['nullable-getter'];
+  String? generateModule = argResults['generate-module'];
+  bool generateOnlyRoot = argResults['generate-only-root'];
+  bool generateOnlyModule = argResults['generate-only-module'];
 
   if (generateRoot) {
     await l10m.generateRootTranslations(
         rootPath: rootPath,
         outputFolder: outputFolder,
         templateArbFile: templateArbFile);
+
+    if (generateOnlyRoot) return;
   }
 
-  l10m.generateModulesTranslations(
+  if (generateOnlyModule && generateModule != null) {
+    await l10m.generateOnlyModuleTranslations(
+      modulePath: modulePath,
+      outputFolder: outputFolder,
+      templateArbFile: templateArbFile,
+      nullableGetter: nullableGetter,
+      generateModule: generateModule,
+    );
+    return;
+  }
+
+  await l10m.generateModulesTranslations(
       modulePath: modulePath,
       outputFolder: outputFolder,
       templateArbFile: templateArbFile,

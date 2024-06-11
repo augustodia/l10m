@@ -85,6 +85,62 @@ Future<void> generateModulesTranslations({
   }
 }
 
+Future<void> generateOnlyModuleTranslations({
+  required String modulePath,
+  required String outputFolder,
+  required String templateArbFile,
+  required bool nullableGetter,
+  required String generateModule,
+}) async {
+  // Path to the current module
+  String featurePath = '$modulePath/$generateModule/l10n';
+
+  String outputPath = '$modulePath/$generateModule/$outputFolder';
+
+  try {
+    // Verify if the module localization folder exists
+    if (await Directory(featurePath).exists()) {
+      print('🔄 Generating translations for "$generateModule" folder');
+      await checkLocalizationKeys(featurePath, templateArbFile);
+      // Execute flutter gen-l10n for the current module
+      ProcessResult result = await Process.run('flutter', [
+        'gen-l10n',
+        '--arb-dir',
+        featurePath,
+        '--output-dir',
+        outputPath,
+        '--no-synthetic-package',
+        '--output-class',
+        '${underscoreToCamelCase(capitalize(generateModule))}Localizations',
+        '--template-arb-file',
+        templateArbFile,
+        '--output-localization-file',
+        '${camelCaseToUnderscore(generateModule)}_localizations.dart',
+        if (!nullableGetter) '--no-nullable-getter'
+      ]);
+
+      if (result.stdout.toString().isEmpty &&
+          result.stderr.toString().isEmpty) {
+        print('✅ Generated translations for "$generateModule" folder');
+        return;
+      }
+
+      if (result.stdout.toString().isNotEmpty) print(result.stdout);
+      if (result.stderr.toString().isNotEmpty) print(result.stderr);
+      print('❌ Failed to generate translations for "$generateModule" folder');
+    } else {
+      print(
+          '▶▶ Skipped translations for "$generateModule" folder because no translations where found in the specified path');
+    }
+  } on KeyNotFoundException {
+    print(
+        '❌ Failed to generate translations because some keys were missing in the files');
+  } catch (e) {
+    print(e);
+    print('❌ Failed to generate translations for "$generateModule" folder');
+  }
+}
+
 Future<void> generateRootTranslations(
     {required String rootPath,
     required String outputFolder,
