@@ -48,3 +48,7 @@
 ## 0.4.0
 
 - Added support to Windows
+
+## 0.4.1
+
+- 🐛 Fix bug only generate root
