@@ -70,7 +70,8 @@ void main() {
       await generateRootTranslations(
           rootPath: directory.path,
           outputFolder: outputPath,
-          templateArbFile: 'intl_en.arb');
+          templateArbFile: 'intl_en.arb',
+          nullableGetter: false);
 
       final generatedFile = File(path
           .normalize('${directory.path}/$outputPath/root_localizations.dart'));

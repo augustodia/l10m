@@ -67,9 +67,11 @@ void main(List<String> arguments) async {
   try {
     if (generateRoot) {
       await l10m.generateRootTranslations(
-          rootPath: rootPath,
-          outputFolder: outputFolder,
-          templateArbFile: templateArbFile);
+        rootPath: rootPath,
+        outputFolder: outputFolder,
+        templateArbFile: templateArbFile,
+        nullableGetter: nullableGetter,
+      );
 
       if (generateOnlyRoot) exit(0);
     }

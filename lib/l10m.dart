@@ -171,6 +171,7 @@ Future<void> generateRootTranslations({
   required String rootPath,
   required String outputFolder,
   required String templateArbFile,
+  required bool nullableGetter,
 }) async {
   var errors = <String>[];
 
@@ -197,6 +198,7 @@ Future<void> generateRootTranslations({
         templateArbFile,
         '--output-localization-file',
         'root_localizations.dart',
+        if (!nullableGetter) '--no-nullable-getter'
       ]);
 
       if (result.stdout.toString().isEmpty &&
