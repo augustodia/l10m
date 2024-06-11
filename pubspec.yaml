@@ -1,6 +1,6 @@
 name: l10m
 description: A library for modular localization in Dart. It allows you to split your localization files into multiple files and load them on demand
-version: 0.3.0
+version: 0.3.1
 repository: https://github.com/augustodia/l10m
 
 environment:
