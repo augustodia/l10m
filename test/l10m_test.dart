@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:l10m/errors/key_not_found_exception.dart';
+import 'package:path/path.dart' as path;
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 import 'package:l10m/l10m.dart';
@@ -25,26 +25,26 @@ void main() {
     });
 
     test('when checkLocalizationKeys is called withou exception', () async {
-      final file = File('${directory.path}/intl_en.arb');
+      final file = File(path.normalize('${directory.path}/intl_en.arb'));
       await file.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      final file2 = File('${directory.path}/app_pt.arb');
+      final file2 = File(path.normalize('${directory.path}/app_pt.arb'));
       await file2.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      final file3 = File('${directory.path}/app_es.arb');
+      final file3 = File(path.normalize('${directory.path}/app_es.arb'));
       await file3.writeAsString('{"key1": "value1", "key2": "value2"}');
 
       expect(checkLocalizationKeys(directory.path, 'intl_en.arb'), completes);
     });
 
     test('when checkLocalizationKeys is called with exception', () async {
-      final file = File('${directory.path}/intl_en.arb');
+      final file = File(path.normalize('${directory.path}/intl_en.arb'));
       await file.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      final file2 = File('${directory.path}/app_pt.arb');
+      final file2 = File(path.normalize('${directory.path}/app_pt.arb'));
       await file2.writeAsString('{"key1": "value1"}');
 
-      final file3 = File('${directory.path}/app_es.arb');
+      final file3 = File(path.normalize('${directory.path}/app_es.arb'));
       await file3.writeAsString('{"key1": "value1", "key2": "value2"}');
 
       expect(checkLocalizationKeys(directory.path, 'intl_en.arb'),
@@ -52,16 +52,17 @@ void main() {
     });
 
     test('when generateRootTranslations is called withou exception', () async {
-      final l10nDirectory = Directory('${directory.path}/l10n');
+      final l10nDirectory =
+          Directory(path.normalize(path.normalize('${directory.path}/l10n')));
       l10nDirectory.createSync();
 
-      final file = File('${l10nDirectory.path}/intl_en.arb');
+      final file = File(path.normalize('${l10nDirectory.path}/intl_en.arb'));
       await file.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      final file2 = File('${l10nDirectory.path}/app_pt.arb');
+      final file2 = File(path.normalize('${l10nDirectory.path}/app_pt.arb'));
       await file2.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      final file3 = File('${l10nDirectory.path}/app_es.arb');
+      final file3 = File(path.normalize('${l10nDirectory.path}/app_es.arb'));
       await file3.writeAsString('{"key1": "value1", "key2": "value2"}');
 
       final outputPath = 'l10n/output';
@@ -71,47 +72,50 @@ void main() {
           outputFolder: outputPath,
           templateArbFile: 'intl_en.arb');
 
-      final generatedFile =
-          File('${directory.path}/$outputPath/root_localizations.dart');
+      final generatedFile = File(path
+          .normalize('${directory.path}/$outputPath/root_localizations.dart'));
       expect(await generatedFile.exists(), isTrue);
     });
 
     test('when generateRootTranslations is called with exception', () async {
-      final l10nDirectory = Directory('${directory.path}/l10n');
+      final l10nDirectory = Directory(path.normalize('${directory.path}/l10n'));
       l10nDirectory.createSync();
 
-      final file = File('${l10nDirectory.path}/intl_en.arb');
+      final file = File(path.normalize('${l10nDirectory.path}/intl_en.arb'));
       await file.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      final file2 = File('${l10nDirectory.path}/app_pt.arb');
+      final file2 = File(path.normalize('${l10nDirectory.path}/app_pt.arb'));
       await file2.writeAsString('{"key1": "value1"}');
 
-      final file3 = File('${l10nDirectory.path}/app_es.arb');
+      final file3 = File(path.normalize('${l10nDirectory.path}/app_es.arb'));
       await file3.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      final generatedFile =
-          File('${directory.path}/output/root_localizations.dart');
+      final generatedFile = File(
+          path.normalize('${directory.path}/output/root_localizations.dart'));
       expect(await generatedFile.exists(), isFalse);
     });
 
     test('when generateModulesTranslations is called withou exception',
         () async {
-      final moduleDirectory = Directory('${directory.path}/modules');
+      final moduleDirectory =
+          Directory(path.normalize('${directory.path}/modules'));
       moduleDirectory.createSync();
 
-      final featureDirectory = Directory('${moduleDirectory.path}/feature');
+      final featureDirectory =
+          Directory(path.normalize('${moduleDirectory.path}/feature'));
       featureDirectory.createSync();
 
-      final l10nDirectory = Directory('${featureDirectory.path}/l10n');
+      final l10nDirectory =
+          Directory(path.normalize('${featureDirectory.path}/l10n'));
       l10nDirectory.createSync();
 
-      final file = File('${l10nDirectory.path}/intl_en.arb');
+      final file = File(path.normalize('${l10nDirectory.path}/intl_en.arb'));
       await file.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      final file2 = File('${l10nDirectory.path}/app_pt.arb');
+      final file2 = File(path.normalize('${l10nDirectory.path}/intl_pt.arb'));
       await file2.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      final file3 = File('${l10nDirectory.path}/app_es.arb');
+      final file3 = File(path.normalize('${l10nDirectory.path}/intl_es.arb'));
       await file3.writeAsString('{"key1": "value1", "key2": "value2"}');
 
       await generateModulesTranslations(
@@ -121,33 +125,35 @@ void main() {
         nullableGetter: true,
       );
 
-      final generatedFile =
-          File('${featureDirectory.path}/output/feature_localizations.dart');
+      final generatedFile = File(path.normalize(
+          '${featureDirectory.path}/output/feature_localizations.dart'));
       expect(await generatedFile.exists(), isTrue);
     });
 
     test(
         'when generateModulesTranslations generates underscored file name for camelCase module directory',
         () async {
-      final moduleDirectory = Directory('${directory.path}/modules');
+      final moduleDirectory =
+          Directory(path.normalize('${directory.path}/modules'));
       moduleDirectory.createSync();
 
       final featureName = 'FeatureToTest';
 
       final featureDirectory =
-          Directory('${moduleDirectory.path}/$featureName');
+          Directory(path.normalize('${moduleDirectory.path}/$featureName'));
       featureDirectory.createSync();
 
-      final l10nDirectory = Directory('${featureDirectory.path}/l10n');
+      final l10nDirectory =
+          Directory(path.normalize('${featureDirectory.path}/l10n'));
       l10nDirectory.createSync();
 
-      final file = File('${l10nDirectory.path}/intl_en.arb');
+      final file = File(path.normalize('${l10nDirectory.path}/intl_en.arb'));
       await file.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      final file2 = File('${l10nDirectory.path}/app_pt.arb');
+      final file2 = File(path.normalize('${l10nDirectory.path}/app_pt.arb'));
       await file2.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      final file3 = File('${l10nDirectory.path}/app_es.arb');
+      final file3 = File(path.normalize('${l10nDirectory.path}/app_es.arb'));
       await file3.writeAsString('{"key1": "value1", "key2": "value2"}');
 
       await generateModulesTranslations(
@@ -167,51 +173,58 @@ void main() {
     });
 
     test('when generateModulesTranslations is called with exception', () async {
-      final moduleDirectory = Directory('${directory.path}/modules');
+      final moduleDirectory =
+          Directory(path.normalize('${directory.path}/modules'));
       moduleDirectory.createSync();
 
-      final featureDirectory = Directory('${moduleDirectory.path}/feature');
+      final featureDirectory =
+          Directory(path.normalize('${moduleDirectory.path}/feature'));
       featureDirectory.createSync();
 
-      final l10nDirectory = Directory('${featureDirectory.path}/l10n');
+      final l10nDirectory =
+          Directory(path.normalize('${featureDirectory.path}/l10n'));
       l10nDirectory.createSync();
 
-      final file = File('${l10nDirectory.path}/intl_en.arb');
+      final file = File(path.normalize('${l10nDirectory.path}/intl_en.arb'));
       await file.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      final file2 = File('${l10nDirectory.path}/app_pt.arb');
+      final file2 = File(path.normalize('${l10nDirectory.path}/app_pt.arb'));
       await file2.writeAsString('{"key1": "value1"}');
 
-      final file3 = File('${l10nDirectory.path}/app_es.arb');
+      final file3 = File(path.normalize('${l10nDirectory.path}/app_es.arb'));
       await file3.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      final generatedFile =
-          File('${featureDirectory.path}/output/feature_localizations.dart');
+      final generatedFile = File(path.normalize(
+          '${featureDirectory.path}/output/feature_localizations.dart'));
       expect(await generatedFile.exists(), isFalse);
     });
 
     test(
         'when generateOnlyModule only specified module translations are generated',
         () async {
-      final moduleDirectory = Directory('${directory.path}/modules');
+      final moduleDirectory =
+          Directory(path.normalize('${directory.path}/modules'));
       moduleDirectory.createSync();
 
-      final featureDirectory = Directory('${moduleDirectory.path}/feature');
+      final featureDirectory =
+          Directory(path.normalize('${moduleDirectory.path}/feature'));
       featureDirectory.createSync();
 
-      final feature2Directory = Directory('${moduleDirectory.path}/feature2');
+      final feature2Directory =
+          Directory(path.normalize('${moduleDirectory.path}/feature2'));
       feature2Directory.createSync();
 
-      final l10nDirectory = Directory('${featureDirectory.path}/l10n');
+      final l10nDirectory =
+          Directory(path.normalize('${featureDirectory.path}/l10n'));
       l10nDirectory.createSync();
 
-      final file = File('${l10nDirectory.path}/intl_en.arb');
+      final file = File(path.normalize('${l10nDirectory.path}/intl_en.arb'));
       await file.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      final file2 = File('${l10nDirectory.path}/app_pt.arb');
+      final file2 = File(path.normalize('${l10nDirectory.path}/app_pt.arb'));
       await file2.writeAsString('{"key1": "value1", "key2": "value2"}');
 
-      final file3 = File('${l10nDirectory.path}/app_es.arb');
+      final file3 = File(path.normalize('${l10nDirectory.path}/app_es.arb'));
       await file3.writeAsString('{"key1": "value1", "key2": "value2"}');
 
       await generateOnlyModuleTranslations(
@@ -222,12 +235,12 @@ void main() {
         generateModule: 'feature',
       );
 
-      final generatedFile =
-          File('${featureDirectory.path}/output/feature_localizations.dart');
+      final generatedFile = File(path.normalize(
+          '${featureDirectory.path}/output/feature_localizations.dart'));
       expect(await generatedFile.exists(), isTrue);
 
-      final notGeneratedFile =
-          File('${feature2Directory.path}/output/feature2_localizations.dart');
+      final notGeneratedFile = File(path.normalize(
+          '${feature2Directory.path}/output/feature2_localizations.dart'));
       expect(await notGeneratedFile.exists(), isFalse);
     });
   });

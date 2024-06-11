@@ -39,7 +39,8 @@ Future<void> generateModulesTranslations({
   // Loop through each module
   for (var feature in features) {
     // Path to the current module
-    String featureName = feature.path.split('/').last;
+    final slash = Platform.isWindows ? '\\' : '/';
+    String featureName = feature.path.split(slash).last;
     String featurePath = path.normalize('$modulePath/$featureName/l10n');
 
     String outputPath =
@@ -50,8 +51,10 @@ Future<void> generateModulesTranslations({
       if (await Directory(featurePath).exists()) {
         print('🔄 Generating translations for "$featureName" folder');
         await checkLocalizationKeys(featurePath, templateArbFile);
+
+        final flutterPath = await findFlutterExecutable();
         // Execute flutter gen-l10n for the current module
-        ProcessResult result = await Process.run('flutter', [
+        ProcessResult result = await Process.run(flutterPath, [
           'gen-l10n',
           '--arb-dir',
           featurePath,
@@ -116,8 +119,10 @@ Future<void> generateOnlyModuleTranslations({
     if (await Directory(featurePath).exists()) {
       print('🔄 Generating translations for "$generateModule" folder');
       await checkLocalizationKeys(featurePath, templateArbFile);
+
+      String flutterPath = await findFlutterExecutable();
       // Execute flutter gen-l10n for the current module
-      ProcessResult result = await Process.run('flutter', [
+      ProcessResult result = await Process.run(flutterPath, [
         'gen-l10n',
         '--arb-dir',
         featurePath,
@@ -171,12 +176,15 @@ Future<void> generateRootTranslations({
 
   final outputPath = path.normalize('$rootPath/$outputFolder');
   final rootPathDir = path.normalize('$rootPath/l10n');
+
   try {
     if (await Directory(rootPathDir).exists()) {
       print('🔄 Generating translations for root folder');
+
       await checkLocalizationKeys(rootPathDir, templateArbFile);
 
-      ProcessResult result = await Process.run('flutter', [
+      String flutterPath = await findFlutterExecutable();
+      ProcessResult result = await Process.run(flutterPath, [
         'gen-l10n',
         '--arb-dir',
         rootPathDir,
@@ -272,4 +280,26 @@ Future<void> checkLocalizationKeys(
   if (errors.isNotEmpty) {
     throw Exception(errors.join('\n'));
   }
+}
+
+Future<String> findFlutterExecutable() async {
+  // Obter o PATH do sistema
+  String? path = Platform.environment['PATH'];
+
+  if (path != null) {
+    // Separar o PATH em diretórios individuais
+    List<String> directories = path.split(Platform.isWindows ? ';' : ':');
+
+    // Tentar encontrar o executável flutter em cada diretório
+    for (String dir in directories) {
+      String flutterPath =
+          Platform.isWindows ? '$dir\\flutter.bat' : '$dir/flutter';
+
+      if (await File(flutterPath).exists()) {
+        return flutterPath;
+      }
+    }
+  }
+
+  return 'flutter';
 }
