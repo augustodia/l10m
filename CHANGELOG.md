@@ -41,14 +41,6 @@
 - Added flag `--generate-only-module` to generate only the module folder
 - Added option `-generate-module` or `-g` to generate the module folder. This option is only active if the flag `--generate-only-module` is active.
 
-## 0.3.1
-
-- Improvments erros messages
-
-## 0.3.2
-
-- Improvments erros messages
-
-## 0.3.3
+## 0.3.1 - 0.3.4
 
 - Improvments erros messages

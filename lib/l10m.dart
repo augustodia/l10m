@@ -249,15 +249,13 @@ Future<void> checkLocalizationKeys(String path, String templateArbFile) async {
 
     if (missingKeys.isNotEmpty) {
       for (final entry in missingKeys.entries) {
-        print(
-            'The key "${entry.key}" is missing in the following files: ${entry.value.join(', ')}');
+        errors.add(
+            'Key "${entry.key}" was not found in the following files: ${entry.value.join(', ')}');
       }
 
       throw KeyNotFoundException(
           keyNotFound: missingKeys.keys.first, files: missingKeys.values.first);
     }
-  } on KeyNotFoundException catch (e) {
-    errors.add(e.toString());
   } catch (e) {
     errors.add(e.toString());
   }
