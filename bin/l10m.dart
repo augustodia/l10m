@@ -38,7 +38,7 @@ void main(List<String> arguments) async {
       'generate-only-root',
       help: 'Generate only the root translations',
       negatable: false,
-      defaultsTo: true,
+      defaultsTo: false,
     )
     ..addFlag(
       'generate-only-module',
