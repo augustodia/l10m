@@ -28,6 +28,7 @@ Future<void> generateModulesTranslations({
   required String templateArbFile,
   required bool nullableGetter,
 }) async {
+  var errors = <String>[];
   // List of all modules inside the folder
   var dir = Directory(modulePath);
   List<FileSystemEntity> features = dir.listSync();
@@ -70,20 +71,25 @@ Future<void> generateModulesTranslations({
 
         if (result.stdout.toString().isNotEmpty) print(result.stdout);
         if (result.stderr.toString().isNotEmpty) print(result.stderr);
-        print('❌ Failed to generate translations for "$featureName" folder');
+        throw Exception(
+            '❌ Failed to generate translations for "$featureName" folder: ${result.stderr.toString()} ${result.stdout}');
       } else {
         print(
             '▶▶ Skipped translations for "$featureName" folder because no translations where found in the specified path');
       }
-    } on KeyNotFoundException {
+    } on KeyNotFoundException catch (e) {
+      errors.add(e.toString());
       print(
           '❌ Failed to generate translations because some keys were missing in the files');
-      rethrow;
     } catch (e) {
+      errors.add(e.toString());
       print(e);
       print('❌ Failed to generate translations for "$featureName" folder');
-      rethrow;
     }
+  }
+
+  if (errors.isNotEmpty) {
+    throw Exception(errors.join('\n'));
   }
 }
 
@@ -94,6 +100,7 @@ Future<void> generateOnlyModuleTranslations({
   required bool nullableGetter,
   required String generateModule,
 }) async {
+  var errors = <String>[];
   // Path to the current module
   String featurePath = '$modulePath/$generateModule/l10n';
 
@@ -129,26 +136,34 @@ Future<void> generateOnlyModuleTranslations({
 
       if (result.stdout.toString().isNotEmpty) print(result.stdout);
       if (result.stderr.toString().isNotEmpty) print(result.stderr);
-      print('❌ Failed to generate translations for "$generateModule" folder');
+      throw Exception(
+          '❌ Failed to generate translations for "$generateModule": ${result.stderr.toString()} ${result.stdout}');
     } else {
       print(
           '▶▶ Skipped translations for "$generateModule" folder because no translations where found in the specified path');
     }
-  } on KeyNotFoundException {
+  } on KeyNotFoundException catch (e) {
+    errors.add(e.toString());
     print(
         '❌ Failed to generate translations because some keys were missing in the files');
-    rethrow;
   } catch (e) {
+    errors.add(e.toString());
     print(e);
     print('❌ Failed to generate translations for "$generateModule" folder');
-    rethrow;
+  }
+
+  if (errors.isNotEmpty) {
+    throw Exception(errors.join('\n'));
   }
 }
 
-Future<void> generateRootTranslations(
-    {required String rootPath,
-    required String outputFolder,
-    required String templateArbFile}) async {
+Future<void> generateRootTranslations({
+  required String rootPath,
+  required String outputFolder,
+  required String templateArbFile,
+}) async {
+  var errors = <String>[];
+
   final outputPath = '$rootPath/$outputFolder';
   final rootPathDir = '$rootPath/l10n';
   try {
@@ -180,24 +195,30 @@ Future<void> generateRootTranslations(
 
       if (result.stdout.toString().isNotEmpty) print(result.stdout);
       if (result.stderr.toString().isNotEmpty) print(result.stderr);
-
-      print('❌ Failed to generate translations for root folder');
+      throw Exception(
+          '❌ Failed to generate translations for root folder: ${result.stderr.toString()} ${result.stdout}');
     } else {
       print(
           '▶▶ Skipped translations for root folder because no translations where found in the specified path');
     }
-  } on KeyNotFoundException {
+  } on KeyNotFoundException catch (e) {
+    errors.add(e.toString());
     print(
         '❌ Failed to generate translations because some keys were missing in the files');
-    rethrow;
   } catch (e) {
+    errors.add(e.toString());
     print(e);
     print('❌ Failed to generate translations for root folder');
-    rethrow;
+  }
+
+  if (errors.isNotEmpty) {
+    throw Exception(errors.join('\n'));
   }
 }
 
 Future<void> checkLocalizationKeys(String path, String templateArbFile) async {
+  var errors = <String>[];
+
   try {
     final directory = Directory(path);
     final arbFiles =
@@ -235,9 +256,13 @@ Future<void> checkLocalizationKeys(String path, String templateArbFile) async {
       throw KeyNotFoundException(
           keyNotFound: missingKeys.keys.first, files: missingKeys.values.first);
     }
-  } on KeyNotFoundException {
-    rethrow;
+  } on KeyNotFoundException catch (e) {
+    errors.add(e.toString());
   } catch (e) {
-    rethrow;
+    errors.add(e.toString());
+  }
+
+  if (errors.isNotEmpty) {
+    throw Exception(errors.join('\n'));
   }
 }
