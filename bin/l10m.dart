@@ -93,7 +93,7 @@ void main(List<String> arguments) async {
 
     exit(0);
   } catch (e) {
-    print(e);
+    stderr.writeln(e);
     exit(1);
   }
 }
