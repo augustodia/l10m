@@ -78,9 +78,11 @@ Future<void> generateModulesTranslations({
     } on KeyNotFoundException {
       print(
           '❌ Failed to generate translations because some keys were missing in the files');
+      rethrow;
     } catch (e) {
       print(e);
       print('❌ Failed to generate translations for "$featureName" folder');
+      rethrow;
     }
   }
 }
@@ -135,9 +137,11 @@ Future<void> generateOnlyModuleTranslations({
   } on KeyNotFoundException {
     print(
         '❌ Failed to generate translations because some keys were missing in the files');
+    rethrow;
   } catch (e) {
     print(e);
     print('❌ Failed to generate translations for "$generateModule" folder');
+    rethrow;
   }
 }
 
@@ -185,9 +189,11 @@ Future<void> generateRootTranslations(
   } on KeyNotFoundException {
     print(
         '❌ Failed to generate translations because some keys were missing in the files');
+    rethrow;
   } catch (e) {
     print(e);
     print('❌ Failed to generate translations for root folder');
+    rethrow;
   }
 }
 

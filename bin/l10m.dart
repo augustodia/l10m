@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:args/args.dart';
 import 'package:l10m/l10m.dart' as l10m;
 
@@ -50,7 +52,7 @@ void main(List<String> arguments) async {
 
   if (argResults['help'] == true) {
     print(parser.usage);
-    return;
+    exit(0);
   }
 
   String modulePath = argResults['module-path'];
@@ -62,30 +64,36 @@ void main(List<String> arguments) async {
   String? generateModule = argResults['generate-module'];
   bool generateOnlyRoot = argResults['generate-only-root'];
   bool generateOnlyModule = argResults['generate-only-module'];
+  try {
+    if (generateRoot) {
+      await l10m.generateRootTranslations(
+          rootPath: rootPath,
+          outputFolder: outputFolder,
+          templateArbFile: templateArbFile);
 
-  if (generateRoot) {
-    await l10m.generateRootTranslations(
-        rootPath: rootPath,
+      if (generateOnlyRoot) exit(0);
+    }
+
+    if (generateOnlyModule && generateModule != null) {
+      await l10m.generateOnlyModuleTranslations(
+        modulePath: modulePath,
         outputFolder: outputFolder,
-        templateArbFile: templateArbFile);
+        templateArbFile: templateArbFile,
+        nullableGetter: nullableGetter,
+        generateModule: generateModule,
+      );
+      exit(0);
+    }
 
-    if (generateOnlyRoot) return;
+    await l10m.generateModulesTranslations(
+        modulePath: modulePath,
+        outputFolder: outputFolder,
+        templateArbFile: templateArbFile,
+        nullableGetter: nullableGetter);
+
+    exit(0);
+  } catch (e) {
+    print(e);
+    exit(1);
   }
-
-  if (generateOnlyModule && generateModule != null) {
-    await l10m.generateOnlyModuleTranslations(
-      modulePath: modulePath,
-      outputFolder: outputFolder,
-      templateArbFile: templateArbFile,
-      nullableGetter: nullableGetter,
-      generateModule: generateModule,
-    );
-    return;
-  }
-
-  await l10m.generateModulesTranslations(
-      modulePath: modulePath,
-      outputFolder: outputFolder,
-      templateArbFile: templateArbFile,
-      nullableGetter: nullableGetter);
 }
