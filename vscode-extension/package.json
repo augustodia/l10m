@@ -1,0 +1,31 @@
+{
+  "name": "l10m-translation-generator",
+  "displayName": "L10M Translation Generator",
+  "description": "A VSCode extension that runs the translation generation command when an .arb file is changed.",
+  "version": "0.0.1",
+  "publisher": "your-publisher-name",
+  "engines": {
+    "vscode": "^1.50.0"
+  },
+  "activationEvents": [
+    "onLanguage:json"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.generateTranslations",
+        "title": "Generate Translations"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.50.0",
+    "typescript": "^4.0.3",
+    "tslint": "^6.1.3"
+  }
+}

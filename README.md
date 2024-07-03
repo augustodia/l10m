@@ -177,14 +177,24 @@ In this structure:
 - The `lib/l10n` folder contains general translations shared across modules.
 - Each module has its own `l10n` folder within its directory (`lib/modules/module_name/l10n`) containing module-specific translations.
 
-## Contributions
+## VSCode Extension
 
-Contributions are welcome! If you have any suggestions, issues, or improvements, feel free to open issues and pull requests on the GitHub repository.
+A VSCode extension is available to automatically run the translation generation command whenever an `.arb` file is changed. This extension helps streamline the localization workflow by automating the translation generation process.
 
-## License
+### Installation
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+To install the VSCode extension, follow these steps:
 
-```
+1. Open VSCode.
+2. Go to the Extensions view by clicking on the Extensions icon in the Activity Bar on the side of the window or by pressing `Ctrl+Shift+X`.
+3. Search for "L10M Translation Generator".
+4. Click the "Install" button for the extension named "L10M Translation Generator".
 
-```
+### Usage
+
+Once the extension is installed, it will automatically monitor `.arb` files for changes and run the translation generation command when any `.arb` file is created, modified, or deleted.
+
+You can also manually trigger the translation generation command by running the "Generate Translations" command from the Command Palette (`Ctrl+Shift+P`).
+
+The extension uses the existing functions in `lib/l10m.dart` to generate translations, ensuring consistency with the command-line interface.
+
