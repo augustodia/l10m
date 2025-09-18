@@ -9,6 +9,8 @@ import 'package:l10m/src/services/arb_validator.dart';
 import 'package:l10m/src/services/flutter_gen_l10n_runner.dart';
 import 'package:l10m/src/utils/string_utils.dart';
 
+enum _LogLevel { info, success, warning, error }
+
 class LocalizationGenerator {
   LocalizationGenerator({
     FlutterGenL10nRunner? flutterRunner,
@@ -140,7 +142,7 @@ class LocalizationGenerator {
       return 'No translations found in ${request.arbDirectory} for $label';
     }
 
-    _log('Generating translations for $label ...');
+    _log('Generating translations for $label ...', level: _LogLevel.info);
 
     try {
       await _arbValidator.validate(
@@ -162,16 +164,19 @@ class LocalizationGenerator {
             : result.stderr);
       }
 
-      _log('Generated translations for $label.');
+      _log('Generated translations for $label.', level: _LogLevel.success);
       return null;
     } on KeyNotFoundException catch (e) {
-      _log('Failed to generate translations for $label: ${e.toString()}');
+      _log('Failed to generate translations for $label: ${e.toString()}',
+          level: _LogLevel.error);
       return e.toString();
     } on DuplicateKeyException catch (e) {
-      _log('Failed to generate translations for $label: ${e.toString()}');
+      _log('Failed to generate translations for $label: ${e.toString()}',
+          level: _LogLevel.error);
       return e.toString();
     } catch (e) {
-      _log('Failed to generate translations for $label: $e');
+      _log('Failed to generate translations for $label: $e',
+          level: _LogLevel.error);
       return e.toString();
     }
   }
@@ -181,11 +186,21 @@ class LocalizationGenerator {
     final stderrContent = result.stderr.toString().trim();
 
     if (stdoutContent.isNotEmpty) {
-      _log(stdoutContent);
+      for (final line in stdoutContent.split('\n')) {
+        final message = line.trim();
+        if (message.isNotEmpty) {
+          _log(message, level: _LogLevel.info);
+        }
+      }
     }
 
     if (stderrContent.isNotEmpty) {
-      _log(stderrContent);
+      for (final line in stderrContent.split('\n')) {
+        final message = line.trim();
+        if (message.isNotEmpty) {
+          _log(message, level: _LogLevel.warning);
+        }
+      }
     }
   }
 
@@ -197,7 +212,24 @@ class LocalizationGenerator {
     throw Exception(errors.join('\n'));
   }
 
-  void _log(String message) {
-    print('[l10m] $message');
+  void _log(String message, {_LogLevel level = _LogLevel.info}) {
+    String prefix;
+    switch (level) {
+      case _LogLevel.success:
+        prefix = '✅';
+        break;
+      case _LogLevel.warning:
+        prefix = '⚠️';
+        break;
+      case _LogLevel.error:
+        prefix = '❌';
+        break;
+      case _LogLevel.info:
+      default:
+        prefix = 'ℹ️ ';
+        break;
+    }
+
+    print('[l10m] $prefix $message');
   }
 }

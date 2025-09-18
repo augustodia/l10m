@@ -160,13 +160,11 @@ class ArbValidator {
       if (await directory.exists()) {
         await directory.delete(recursive: true);
         print(
-          'Removed generated localization files at $normalizedPath due to duplicate keys.',
-        );
+            '[l10m] ⚠️  Removed generated localization files at $normalizedPath due to duplicate keys.');
       }
     } catch (e) {
       print(
-        'Failed to remove generated localization files at $normalizedPath: $e',
-      );
+          '[l10m] ❌ Failed to remove generated localization files at $normalizedPath: $e');
     }
   }
 }
