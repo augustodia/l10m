@@ -70,14 +70,14 @@ Future<void> generateModulesTranslations({
           if (!nullableGetter) '--no-nullable-getter'
         ]);
 
-        if (result.stdout.toString().isEmpty &&
-            result.stderr.toString().isEmpty) {
-          print('✅ Generated translations for "$featureName" folder');
-          return;
-        }
-
         if (result.stdout.toString().isNotEmpty) print(result.stdout);
         if (result.stderr.toString().isNotEmpty) print(result.stderr);
+
+        if (result.exitCode == 0) {
+          print('✅ Generated translations for "$featureName" folder');
+          continue;
+        }
+
         throw Exception(
             '❌ Failed to generate translations for "$featureName" folder: ${result.stderr.toString()} ${result.stdout}');
       } else {
@@ -138,14 +138,14 @@ Future<void> generateOnlyModuleTranslations({
         if (!nullableGetter) '--no-nullable-getter'
       ]);
 
-      if (result.stdout.toString().isEmpty &&
-          result.stderr.toString().isEmpty) {
+      if (result.stdout.toString().isNotEmpty) print(result.stdout);
+      if (result.stderr.toString().isNotEmpty) print(result.stderr);
+
+      if (result.exitCode == 0) {
         print('✅ Generated translations for "$generateModule" folder');
         return;
       }
 
-      if (result.stdout.toString().isNotEmpty) print(result.stdout);
-      if (result.stderr.toString().isNotEmpty) print(result.stderr);
       throw Exception(
           '❌ Failed to generate translations for "$generateModule": ${result.stderr.toString()} ${result.stdout}');
     } else {
@@ -201,14 +201,14 @@ Future<void> generateRootTranslations({
         if (!nullableGetter) '--no-nullable-getter'
       ]);
 
-      if (result.stdout.toString().isEmpty &&
-          result.stderr.toString().isEmpty) {
+      if (result.stdout.toString().isNotEmpty) print(result.stdout);
+      if (result.stderr.toString().isNotEmpty) print(result.stderr);
+
+      if (result.exitCode == 0) {
         print('✅ Generated translations for root folder');
         return;
       }
 
-      if (result.stdout.toString().isNotEmpty) print(result.stdout);
-      if (result.stderr.toString().isNotEmpty) print(result.stderr);
       throw Exception(
           '❌ Failed to generate translations for root folder: ${result.stderr.toString()} ${result.stdout}');
     } else {
