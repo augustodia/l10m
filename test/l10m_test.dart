@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
+import 'package:l10m/errors/duplicate_key_exception.dart';
 import 'package:l10m/l10m.dart';
 
 void main() {
@@ -51,6 +52,33 @@ void main() {
           throwsException);
     });
 
+    test(
+        'when checkLocalizationKeys finds duplicate keys it removes generated folder',
+        () async {
+      final file = File(path.normalize('${directory.path}/intl_en.arb'));
+      await file.writeAsString('{"key1": "value1", "key2": "value2"}');
+
+      final duplicateFile =
+          File(path.normalize('${directory.path}/intl_pt.arb'));
+      await duplicateFile.writeAsString(
+          '{"key1": "value1", "key1": "value2", "key2": "value2"}');
+
+      final generatedDir =
+          Directory(path.normalize('${directory.path}/generated'));
+      generatedDir.createSync(recursive: true);
+      final generatedFile =
+          File(path.normalize('${generatedDir.path}/old_localizations.dart'));
+      await generatedFile.writeAsString('old-content');
+
+      await expectLater(
+        () => checkLocalizationKeys(directory.path, 'intl_en.arb',
+            generatedFolderPath: generatedDir.path),
+        throwsA(isA<DuplicateKeyException>()),
+      );
+
+      expect(await Directory(generatedDir.path).exists(), isFalse);
+    });
+
     test('when generateRootTranslations is called withou exception', () async {
       final l10nDirectory =
           Directory(path.normalize(path.normalize('${directory.path}/l10n')));
@@ -94,6 +122,46 @@ void main() {
       final generatedFile = File(
           path.normalize('${directory.path}/output/root_localizations.dart'));
       expect(await generatedFile.exists(), isFalse);
+    });
+
+    test(
+        'when generateRootTranslations finds duplicate keys it removes generated folder',
+        () async {
+      final l10nDirectory = Directory(path.normalize('${directory.path}/l10n'));
+      l10nDirectory.createSync();
+
+      final templateFile =
+          File(path.normalize('${l10nDirectory.path}/intl_en.arb'));
+      await templateFile.writeAsString('{"key1": "value1", "key2": "value2"}');
+
+      final duplicateFile =
+          File(path.normalize('${l10nDirectory.path}/intl_pt.arb'));
+      await duplicateFile.writeAsString(
+          '{"key1": "value1", "key1": "value2", "key2": "value2"}');
+
+      final otherLanguage =
+          File(path.normalize('${l10nDirectory.path}/intl_es.arb'));
+      await otherLanguage.writeAsString('{"key1": "value1", "key2": "value2"}');
+
+      final outputFolder = 'l10n/output';
+      final outputDirectory =
+          Directory(path.normalize('${directory.path}/$outputFolder'));
+      outputDirectory.createSync(recursive: true);
+      final generatedFile = File(
+          path.normalize('${outputDirectory.path}/root_localizations.dart'));
+      await generatedFile.writeAsString('old-content');
+
+      await expectLater(
+        generateRootTranslations(
+          rootPath: directory.path,
+          outputFolder: outputFolder,
+          templateArbFile: 'intl_en.arb',
+          nullableGetter: false,
+        ),
+        throwsA(isA<Exception>()),
+      );
+
+      expect(await outputDirectory.exists(), isFalse);
     });
 
     test('when generateModulesTranslations is called withou exception',

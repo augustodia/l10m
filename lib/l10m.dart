@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 
 import 'package:l10m/errors/key_not_found_exception.dart';
+import 'package:l10m/errors/duplicate_key_exception.dart';
 
 String capitalize(String text) {
   return text[0].toUpperCase() + text.substring(1);
@@ -50,7 +51,8 @@ Future<void> generateModulesTranslations({
       // Verify if the module localization folder exists
       if (await Directory(featurePath).exists()) {
         print('🔄 Generating translations for "$featureName" folder');
-        await checkLocalizationKeys(featurePath, templateArbFile);
+        await checkLocalizationKeys(featurePath, templateArbFile,
+            generatedFolderPath: outputPath);
 
         final flutterPath = await findFlutterExecutable();
         // Execute flutter gen-l10n for the current module
@@ -88,6 +90,11 @@ Future<void> generateModulesTranslations({
       errors.add(e.toString());
       print(
           '❌ Failed to generate translations because some keys were missing in the files');
+    } on DuplicateKeyException catch (e) {
+      errors.add(e.toString());
+      print(e);
+      print(
+          'Failed to generate translations because duplicate keys were found in the files');
     } catch (e) {
       errors.add(e.toString());
       print(e);
@@ -118,7 +125,8 @@ Future<void> generateOnlyModuleTranslations({
     // Verify if the module localization folder exists
     if (await Directory(featurePath).exists()) {
       print('🔄 Generating translations for "$generateModule" folder');
-      await checkLocalizationKeys(featurePath, templateArbFile);
+      await checkLocalizationKeys(featurePath, templateArbFile,
+          generatedFolderPath: outputPath);
 
       String flutterPath = await findFlutterExecutable();
       // Execute flutter gen-l10n for the current module
@@ -156,6 +164,11 @@ Future<void> generateOnlyModuleTranslations({
     errors.add(e.toString());
     print(
         '❌ Failed to generate translations because some keys were missing in the files');
+  } on DuplicateKeyException catch (e) {
+    errors.add(e.toString());
+    print(e);
+    print(
+        'Failed to generate translations because duplicate keys were found in the files');
   } catch (e) {
     errors.add(e.toString());
     print(e);
@@ -182,7 +195,8 @@ Future<void> generateRootTranslations({
     if (await Directory(rootPathDir).exists()) {
       print('🔄 Generating translations for root folder');
 
-      await checkLocalizationKeys(rootPathDir, templateArbFile);
+      await checkLocalizationKeys(rootPathDir, templateArbFile,
+          generatedFolderPath: outputPath);
 
       String flutterPath = await findFlutterExecutable();
       ProcessResult result = await Process.run(flutterPath, [
@@ -219,6 +233,11 @@ Future<void> generateRootTranslations({
     errors.add(e.toString());
     print(
         '❌ Failed to generate translations because some keys were missing in the files');
+  } on DuplicateKeyException catch (e) {
+    errors.add(e.toString());
+    print(e);
+    print(
+        'Failed to generate translations because duplicate keys were found in the files');
   } catch (e) {
     errors.add(e.toString());
     print(e);
@@ -230,56 +249,158 @@ Future<void> generateRootTranslations({
   }
 }
 
-Future<void> checkLocalizationKeys(
-    String folderPath, String templateArbFile) async {
-  var errors = <String>[];
+Future<void> checkLocalizationKeys(String folderPath, String templateArbFile,
+    {String? generatedFolderPath}) async {
+  final directory = Directory(folderPath);
 
-  try {
-    final directory = Directory(folderPath);
-    final arbFiles =
-        directory.listSync().where((file) => file.path.endsWith('.arb'));
-
-    // Read the template file and extract all keys
-    final templateContent =
-        await File(path.normalize('$folderPath/$templateArbFile'))
-            .readAsString();
-    final templateJson = jsonDecode(templateContent) as Map<String, dynamic>;
-    final templateKeys = templateJson.keys.toSet();
-
-    final missingKeys = <String, List<String>>{};
-
-    for (final file in arbFiles) {
-      final content = await File(file.path).readAsString();
-      final json = jsonDecode(content) as Map<String, dynamic>;
-
-      // Check if all keys from the template file exist in the current file
-      for (final key in templateKeys) {
-        if (!json.containsKey(key)) {
-          if (!missingKeys.containsKey(key)) {
-            missingKeys[key] = [];
-          }
-
-          missingKeys[key]!.add(file.path);
-        }
-      }
-    }
-
-    if (missingKeys.isNotEmpty) {
-      for (final entry in missingKeys.entries) {
-        errors.add(
-            'Key "${entry.key}" was not found in the following files: ${entry.value.join(', ')}');
-      }
-
-      throw KeyNotFoundException();
-    }
-  } on KeyNotFoundException catch (e) {
-    errors.add(e.toString());
-  } catch (e) {
-    errors.add(e.toString());
+  if (!await directory.exists()) {
+    return;
   }
 
-  if (errors.isNotEmpty) {
-    throw Exception(errors.join('\n'));
+  final arbFiles = directory
+      .listSync()
+      .whereType<File>()
+      .where((file) => file.path.endsWith('.arb'))
+      .toList();
+
+  if (arbFiles.isEmpty) {
+    return;
+  }
+
+  final templateFile =
+      File(path.normalize(path.join(folderPath, templateArbFile)));
+
+  if (!await templateFile.exists()) {
+    throw Exception(
+        'Template arb file "$templateArbFile" was not found in $folderPath');
+  }
+
+  final templateContent = await templateFile.readAsString();
+  final templateJson = jsonDecode(templateContent) as Map<String, dynamic>;
+  final templateKeys = templateJson.keys.toSet();
+
+  final missingKeys = <String, List<String>>{};
+  final duplicateKeys = <String, Set<String>>{};
+
+  for (final file in arbFiles) {
+    final content = await File(file.path).readAsString();
+    final duplicates = _findDuplicateKeys(content);
+
+    if (duplicates.isNotEmpty) {
+      duplicateKeys[file.path] = duplicates;
+    }
+
+    final json = jsonDecode(content) as Map<String, dynamic>;
+
+    for (final key in templateKeys) {
+      if (!json.containsKey(key)) {
+        missingKeys.putIfAbsent(key, () => []).add(file.path);
+      }
+    }
+  }
+
+  if (duplicateKeys.isNotEmpty) {
+    await _deleteGeneratedLocalization(generatedFolderPath);
+
+    final message = duplicateKeys.entries
+        .map((entry) =>
+            'Duplicate key(s) ${entry.value.join(', ')} found in file ${path.normalize(entry.key)}')
+        .join('\n');
+
+    throw DuplicateKeyException(message);
+  }
+
+  if (missingKeys.isNotEmpty) {
+    final message = missingKeys.entries
+        .map((entry) =>
+            'Key "${entry.key}" was not found in the following files: ${entry.value.map(path.normalize).join(', ')}')
+        .join('\n');
+
+    throw KeyNotFoundException(message);
+  }
+}
+
+Set<String> _findDuplicateKeys(String content) {
+  final seen = <String>{};
+  final duplicates = <String>{};
+  var index = 0;
+
+  while (index < content.length) {
+    if (content[index] != '"') {
+      index++;
+      continue;
+    }
+
+    index++;
+    final buffer = StringBuffer();
+    var escaped = false;
+
+    while (index < content.length) {
+      final current = content[index];
+
+      if (escaped) {
+        buffer.write(current);
+        escaped = false;
+        index++;
+        continue;
+      }
+
+      if (current == '\\') {
+        escaped = true;
+        index++;
+        continue;
+      }
+
+      if (current == '"') {
+        break;
+      }
+
+      buffer.write(current);
+      index++;
+    }
+
+    if (index >= content.length) {
+      break;
+    }
+
+    final key = buffer.toString();
+    index++;
+
+    while (index < content.length &&
+        (content[index] == ' ' ||
+            content[index] == '\n' ||
+            content[index] == '\r' ||
+            content[index] == '\t')) {
+      index++;
+    }
+
+    if (index < content.length && content[index] == ':') {
+      if (!seen.add(key)) {
+        duplicates.add(key);
+      }
+    }
+  }
+
+  return duplicates;
+}
+
+Future<void> _deleteGeneratedLocalization(String? generatedFolderPath) async {
+  if (generatedFolderPath == null || generatedFolderPath.isEmpty) {
+    return;
+  }
+
+  final normalizedPath = path.normalize(generatedFolderPath);
+  final directory = Directory(normalizedPath);
+
+  try {
+    if (await directory.exists()) {
+      await directory.delete(recursive: true);
+      print(
+          'Removed generated localization files at $normalizedPath due to duplicate keys.');
+    }
+  } catch (e) {
+    print(
+        'Failed to remove generated localization files at $normalizedPath: $e');
   }
 }
 
