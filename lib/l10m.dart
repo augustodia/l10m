@@ -284,14 +284,14 @@ Future<void> checkLocalizationKeys(
 }
 
 Future<String> findFlutterExecutable() async {
-  // Obter o PATH do sistema
+  // Get the PATH environment variable
   String? path = Platform.environment['PATH'];
 
   if (path != null) {
-    // Separar o PATH em diretórios individuais
+    // Split the PATH into individual directories
     List<String> directories = path.split(Platform.isWindows ? ';' : ':');
 
-    // Tentar encontrar o executável flutter em cada diretório
+    // Check each directory for the flutter executable
     for (String dir in directories) {
       String flutterPath =
           Platform.isWindows ? '$dir\\flutter.bat' : '$dir/flutter';
