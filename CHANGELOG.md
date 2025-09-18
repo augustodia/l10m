@@ -1,3 +1,10 @@
+## 1.0.0
+
+- Massive refactor splitting the generator into reusable services and utilities while keeping the public API intact.
+- Added duplicate key detection with automatic cleanup of generated outputs before failing.
+- Enhanced CLI feedback with log levels and emoji prefixes for successes, warnings, and errors.
+- Improved error messages for missing/duplicate keys and cleanup failures.
+
 ## 0.4.1 - 0.4.3
 
 - 🐛 Fix bug only generate root
