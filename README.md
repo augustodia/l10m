@@ -21,6 +21,7 @@ You can run the command-line interface with the following options:
 - `--output-folder` or `-o`: Specifies the output folder for the generated files. Defaults to `l10n/generated`.
 - `--root-path` or `-r`: Specifies the path to the root folder where the localization files are located. Defaults to `lib`.
 - `--template-arb-file` or `-t`: Specifies the path to the template ARB file. Defaults to `intl_en.arb`.
+- `--check`: Validate translations without generating files. Useful for CI pipelines.
 - `--help` or `-h`: Shows the help message with a list of available options.
 
 ## Configuration File
