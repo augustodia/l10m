@@ -5,6 +5,7 @@ import 'package:path/path.dart' as path;
 import 'package:l10m/errors/duplicate_key_exception.dart';
 import 'package:l10m/errors/key_not_found_exception.dart';
 import 'package:l10m/src/models/gen_l10n_request.dart';
+import 'package:l10m/src/models/l10m_config.dart';
 import 'package:l10m/src/services/arb_validator.dart';
 import 'package:l10m/src/services/flutter_gen_l10n_runner.dart';
 import 'package:l10m/src/utils/string_utils.dart';
@@ -26,6 +27,7 @@ class LocalizationGenerator {
     required String outputFolder,
     required String templateArbFile,
     required bool nullableGetter,
+    Map<String, ModuleConfig>? modules,
   }) async {
     final modulesDirectory = Directory(path.normalize(modulePath));
     final entries = modulesDirectory
@@ -38,8 +40,10 @@ class LocalizationGenerator {
 
     for (final featureDirectory in entries) {
       final featureName = path.basename(featureDirectory.path);
+      final moduleConfig = modules?[featureName];
       final arbDirectory = path.join(featureDirectory.path, 'l10n');
-      final outputDirectory = path.join(featureDirectory.path, outputFolder);
+      final outputDirectory = path.join(
+          featureDirectory.path, moduleConfig?.outputFolder ?? outputFolder);
 
       final error = await _generateLocalization(
         label: '"$featureName"',
@@ -48,10 +52,11 @@ class LocalizationGenerator {
           outputDirectory: path.normalize(outputDirectory),
           outputClass:
               '${underscoreToCamelCase(capitalize(featureName))}Localizations',
-          templateArbFile: templateArbFile,
+          templateArbFile:
+              moduleConfig?.templateArbFile ?? templateArbFile,
           outputLocalizationFile:
               '${camelCaseToUnderscore(featureName)}_localizations.dart',
-          nullableGetter: nullableGetter,
+          nullableGetter: moduleConfig?.nullableGetter ?? nullableGetter,
         ),
         flutterExecutable: flutterExecutable,
       );

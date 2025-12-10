@@ -3,31 +3,28 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:l10m/l10m.dart' as l10m;
 
+import 'package:l10m/src/services/config_loader.dart';
+
 void main(List<String> arguments) async {
   final parser = ArgParser()
     ..addOption('module-path',
         abbr: 'm',
-        defaultsTo: 'lib/modules',
         help: 'Path to the modules folder')
     ..addOption('output-folder',
         abbr: 'o',
-        defaultsTo: 'l10n/generated',
         help: 'Output folder for the generated files')
     ..addFlag('generate-root',
-        negatable: true, help: 'Generate root translations', defaultsTo: true)
+        negatable: true, help: 'Generate root translations')
     ..addOption('root-path',
         abbr: 'r',
-        defaultsTo: 'lib',
         help:
             'Path to the root folder where the localization files are located')
     ..addOption('template-arb-file',
         abbr: 't',
-        defaultsTo: 'intl_en.arb',
         help: 'Path to the template arb file')
     ..addFlag('nullable-getter',
         help: 'Generate the getter methods as nullable',
-        negatable: true,
-        defaultsTo: true)
+        negatable: true)
     ..addOption(
       'generate-module',
       abbr: 'g',
@@ -55,15 +52,23 @@ void main(List<String> arguments) async {
     exit(0);
   }
 
-  String modulePath = argResults['module-path'];
-  String outputFolder = argResults['output-folder'];
-  bool generateRoot = argResults['generate-root'];
-  String rootPath = argResults['root-path'];
-  String templateArbFile = argResults['template-arb-file'];
-  bool nullableGetter = argResults['nullable-getter'];
+  final configLoader = ConfigLoader();
+  final config = await configLoader.loadConfig();
+
+  String modulePath = argResults['module-path'] ?? config?.modulePath ?? 'lib/modules';
+  String outputFolder = argResults['output-folder'] ?? config?.outputFolder ?? 'l10n/generated';
+  bool generateRoot = argResults.wasParsed('generate-root')
+      ? argResults['generate-root']
+      : config?.generateRoot ?? true;
+  String rootPath = argResults['root-path'] ?? config?.rootPath ?? 'lib';
+  String templateArbFile = argResults['template-arb-file'] ?? config?.templateArbFile ?? 'intl_en.arb';
+  bool nullableGetter = argResults.wasParsed('nullable-getter')
+      ? argResults['nullable-getter']
+      : config?.nullableGetter ?? true;
   String? generateModule = argResults['generate-module'];
   bool generateOnlyRoot = argResults['generate-only-root'];
   bool generateOnlyModule = argResults['generate-only-module'];
+
   try {
     if (generateRoot) {
       await l10m.generateRootTranslations(
@@ -91,7 +96,8 @@ void main(List<String> arguments) async {
         modulePath: modulePath,
         outputFolder: outputFolder,
         templateArbFile: templateArbFile,
-        nullableGetter: nullableGetter);
+        nullableGetter: nullableGetter,
+        modules: config?.modules);
 
     exit(0);
   } catch (e) {

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="l10m API docs, for the Dart programming language.">
+  <title>l10m - Dart API docs</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="static-assets/github.css?v1">
+  <link rel="stylesheet" href="static-assets/styles.css?v1">
+  <link rel="icon" href="static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li class="self-crumb">l10m package</li>
+  </ol>
+  <div class="self-name">l10m</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div id="dartdoc-main-content" class="main-content">
+      
+<section class="desc markdown">
+  <h1 id="l10m">l10m</h1>
+<p><code>l10m</code> is a Dart library for generating module translation files, designed to facilitate the localization of modular applications.</p>
+<h2 id="usage">Usage</h2>
+<p>To use this library, add <code>l10m</code> as a dependency in your <code>pubspec.yaml</code> file.</p>
+<pre class="language-yaml"><code class="language-yaml">dev_dependencies:
+  l10m: any
+</code></pre>
+<h2 id="command-line-interface">Command-line Interface</h2>
+<p>The <code>l10m</code> library provides a command-line interface for generating translation files. This interface allows you to specify various parameters to customize the generation process.</p>
+<p>You can run the command-line interface with the following options:</p>
+<ul>
+<li><code>--module-path</code> or <code>-m</code>: Specifies the path to the modules folder. Defaults to <code>lib/modules</code>.</li>
+<li><code>--output-folder</code> or <code>-o</code>: Specifies the output folder for the generated files. Defaults to <code>l10n/generated</code>.</li>
+<li><code>--root-path</code> or <code>-r</code>: Specifies the path to the root folder where the localization files are located. Defaults to <code>lib</code>.</li>
+<li><code>--template-arb-file</code> or <code>-t</code>: Specifies the path to the template ARB file. Defaults to <code>intl_en.arb</code>.</li>
+<li><code>--help</code> or <code>-h</code>: Shows the help message with a list of available options.</li>
+</ul>
+<h2 id="configuration-file">Configuration File</h2>
+<p>You can use a configuration file to avoid passing long arguments to the CLI.
+Supported file names are <code>l10m.yaml</code>, <code>l10m.yml</code>, <code>l10m.json</code>, <code>.l10m.yaml</code>, <code>.l10m.yml</code>, <code>.l10m.json</code>.</p>
+<p>Example <code>l10m.yaml</code>:</p>
+<pre class="language-yaml"><code class="language-yaml">module-path: lib/modules
+output-folder: l10n/generated
+root-path: lib
+template-arb-file: intl_en.arb
+nullable-getter: true
+generate-root: true
+modules:
+  auth:
+    output-folder: l10n/gen
+    template-arb-file: intl_pt.arb
+    nullable-getter: false
+</code></pre>
+<p>CLI arguments take precedence over configuration file settings.</p>
+<h3 id="example-usage">Example Usage</h3>
+<p>To generate translation files, you can use the following command:</p>
+<pre class="language-bash"><code class="language-bash">dart run l10m -m lib/modules -o l10n/generated -r lib -t intl_en.arb
+</code></pre>
+<p>This command will generate both the root translations and module-specific translations based on the provided paths and template ARB file.</p>
+<h2 id="output-structure">Output Structure</h2>
+<p>The current approach is to use translations in the <code>lib/l10n</code> folder as "general" translations shared among modules. Files located within <code>lib/module/module1/l10n</code> will be specific to that module.</p>
+<h3 id="general-translations">General Translations</h3>
+<p>General translations are stored in the <code>lib/l10n</code> folder. These translations are shared across multiple modules and provide a common set of localized strings.</p>
+<h3 id="module-specific-translations">Module-specific Translations</h3>
+<p>Module-specific translations are stored in the <code>lib/modules/&lt;module_name&gt;/l10n</code> folder. These translations are unique to each module and provide localized strings that are specific to that module's functionality.</p>
+<h3 id="example-output-structure">Example Output Structure</h3>
+<p>Here is an example of what the output structure might look like:</p>
+<pre class="language-yaml"><code class="language-yaml">lib/
+--l10n/
+----generated/
+------root_localizations.dart
+------root_localizations_en.dart
+------root_localizations_es.dart
+----intl_en.arb  # File previously located in the root folder
+----intl_es.arb  # File previously located in the root folder
+--modules/
+----module1/
+------l10n/
+--------generated/
+----------module1_localizations.dart
+----------module1_localizations_en.dart
+----------module1_localizations_es.dart
+--------intl_en.arb  # File previously located in the module folder
+--------intl_es.arb  # File previously located in the module folder
+----module2/
+------l10n/
+--------generated/
+----------module2_localizations.dart
+----------module2_localizations_en.dart
+----------module2_localizations_es.dart
+--------intl_en.arb  # File previously located in the module folder
+--------intl_es.arb  # File previously located in the module folder
+----module3/
+------l10n/
+--------generated/
+----------module3_localizations.dart
+----------module3_localizations_en.dart
+----------module3_localizations_es.dart
+--------intl_en.arb  # File previously located in the module folder
+--------intl_es.arb  # File previously located in the module folder
+</code></pre>
+<p>After generating the files, you can combine them all into a common class to be used in the application:</p>
+<p>translate.dart</p>
+<pre class="language-dart"><code class="language-dart">import 'package:flutter/material.dart';
+
+import 'l10n/generated/root_localizations.dart';
+import 'modules/module1/l10n/generated/module1_localizations.dart';
+import 'modules/module2/l10n/generated/module2_localizations.dart';
+import 'modules/module3/l10n/generated/module3_localizations.dart';
+
+class Translate {
+  static List&lt;LocalizationsDelegate&gt; localizationsDelegates = [
+    RootLocalizationsDelegate(),
+    Module1LocalizationsDelegate(),
+    Module2LocalizationsDelegate(),
+    Module3LocalizationsDelegate(),
+  ];
+
+  static List&lt;Locale&gt; supportedLocales = [
+    const Locale('en'),
+    const Locale('es'),
+  ];
+
+  static RootLocalizations root(BuildContext context) {
+    return RootLocalizations.of(context);
+  }
+
+  static Module1Localizations module1(BuildContext context) {
+    return Module1Localizations.of(context);
+  }
+
+  static Module2Localizations module2(BuildContext context) {
+    return Module2Localizations.of(context);
+  }
+
+  static Module3Localizations module3(BuildContext context) {
+    return Module3Localizations.of(context);
+  }
+}
+</code></pre>
+<p>main.dart</p>
+<pre class="language-dart"><code class="language-dart">import 'package:flutter/material.dart';
+
+import 'translate.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      localizationsDelegates: Translate.localizationsDelegates,
+      supportedLocales: Translate.supportedLocales,
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(Translate.root(context).appTitle),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: &lt;Widget&gt;[
+            Text(Translate.module1(context).title),
+            Text(Translate.module2(context).title),
+            Text(Translate.module3(context).title),
+          ],
+        ),
+      ),
+    );
+  }
+}
+</code></pre>
+<p>In this structure:</p>
+<ul>
+<li>The <code>lib/l10n</code> folder contains general translations shared across modules.</li>
+<li>Each module has its own <code>l10n</code> folder within its directory (<code>lib/modules/module_name/l10n</code>) containing module-specific translations.</li>
+</ul>
+<h2 id="contributions">Contributions</h2>
+<p>Contributions are welcome! If you have any suggestions, issues, or improvements, feel free to open issues and pull requests on the GitHub repository.</p>
+<h2 id="license">License</h2>
+<p>This project is licensed under the MIT License. See the <code>LICENSE</code> file for details.</p>
+<pre class="language-dart"><code></code></pre>
+</section>
+
+
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <dt id="duplicate_key_exception">
+  <span class="name"><a href="errors_duplicate_key_exception/">errors\duplicate_key_exception</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="key_not_found_exception">
+  <span class="name"><a href="errors_key_not_found_exception/">errors\key_not_found_exception</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="l10m">
+  <span class="name"><a href="l10m/">l10m</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+        </dl>
+      </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li class="self-crumb">l10m package</li>
+</ol>
+
+    <h5 class="hidden-xs"><span class="package-name">l10m</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="errors_duplicate_key_exception/">errors\duplicate_key_exception</a></li>
+      <li><a href="errors_key_not_found_exception/">errors\key_not_found_exception</a></li>
+      <li><a href="l10m/">l10m</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+</main>
+<footer>
+  <span class="no-break">
+    l10m
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="static-assets/highlight.pack.js?v1"></script>
+<script src="static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

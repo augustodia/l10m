@@ -1,8 +1,11 @@
 import 'dart:async';
 
 import 'package:l10m/src/localization_generator.dart';
+import 'package:l10m/src/models/l10m_config.dart';
 import 'package:l10m/src/services/arb_validator.dart';
 import 'package:l10m/src/services/flutter_gen_l10n_runner.dart';
+
+export 'src/models/l10m_config.dart';
 
 export 'src/utils/string_utils.dart'
     show capitalize, underscoreToCamelCase, camelCaseToUnderscore;
@@ -16,12 +19,14 @@ Future<void> generateModulesTranslations({
   required String outputFolder,
   required String templateArbFile,
   required bool nullableGetter,
+  Map<String, ModuleConfig>? modules,
 }) {
   return _generator.generateModulesTranslations(
     modulePath: modulePath,
     outputFolder: outputFolder,
     templateArbFile: templateArbFile,
     nullableGetter: nullableGetter,
+    modules: modules,
   );
 }
 
