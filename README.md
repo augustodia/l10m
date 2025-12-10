@@ -23,6 +23,29 @@ You can run the command-line interface with the following options:
 - `--template-arb-file` or `-t`: Specifies the path to the template ARB file. Defaults to `intl_en.arb`.
 - `--help` or `-h`: Shows the help message with a list of available options.
 
+## Configuration File
+
+You can use a configuration file to avoid passing long arguments to the CLI.
+Supported file names are `l10m.yaml`, `l10m.yml`, `l10m.json`, `.l10m.yaml`, `.l10m.yml`, `.l10m.json`.
+
+Example `l10m.yaml`:
+
+```yaml
+module-path: lib/modules
+output-folder: l10n/generated
+root-path: lib
+template-arb-file: intl_en.arb
+nullable-getter: true
+generate-root: true
+modules:
+  auth:
+    output-folder: l10n/gen
+    template-arb-file: intl_pt.arb
+    nullable-getter: false
+```
+
+CLI arguments take precedence over configuration file settings.
+
 ### Example Usage
 
 To generate translation files, you can use the following command:
