@@ -2,18 +2,29 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:l10m/l10m.dart' as l10m;
+import 'package:l10m/src/services/aggregator_generator.dart';
 import 'package:l10m/src/services/config_loader.dart';
+import 'package:l10m/src/utils/logger.dart';
 import 'package:path/path.dart' as path;
 
 class L10mCli {
   final ConfigLoader _configLoader;
+  final AggregatorGenerator _aggregatorGenerator;
 
-  L10mCli({ConfigLoader? configLoader})
-      : _configLoader = configLoader ?? ConfigLoader();
+  L10mCli({
+    ConfigLoader? configLoader,
+    AggregatorGenerator? aggregatorGenerator,
+  })  : _configLoader = configLoader ?? ConfigLoader(),
+        _aggregatorGenerator = aggregatorGenerator ?? AggregatorGenerator();
 
   Future<void> run(List<String> arguments) async {
     final parser = _createParser();
     final argResults = parser.parse(arguments);
+
+    Logger().configure(
+      verbose: argResults['verbose'] as bool,
+      useColors: !(argResults['no-color'] as bool),
+    );
 
     if (argResults['help'] == true) {
       print(parser.usage);
@@ -40,6 +51,8 @@ class L10mCli {
     bool generateOnlyRoot = argResults['generate-only-root'];
     bool generateOnlyModule = argResults['generate-only-module'];
     bool check = argResults['check'];
+    String aggregatorFile = argResults['aggregator-file'];
+    bool noAggregator = argResults['no-aggregator'];
 
     try {
       if (check) {
@@ -53,38 +66,53 @@ class L10mCli {
         return;
       }
 
-      if (generateRoot) {
-        await l10m.generateRootTranslations(
+      try {
+        if (generateRoot) {
+          await l10m.generateRootTranslations(
+            rootPath: rootPath,
+            outputFolder: outputFolder,
+            templateArbFile: templateArbFile,
+            nullableGetter: nullableGetter,
+          );
+
+          if (generateOnlyRoot) exit(0);
+        }
+
+        if (generateOnlyModule && generateModule != null) {
+          await l10m.generateOnlyModuleTranslations(
+            modulePath: modulePath,
+            outputFolder: outputFolder,
+            templateArbFile: templateArbFile,
+            nullableGetter: nullableGetter,
+            generateModule: generateModule,
+          );
+          exit(0);
+        }
+
+        await l10m.generateModulesTranslations(
+            modulePath: modulePath,
+            outputFolder: outputFolder,
+            templateArbFile: templateArbFile,
+            nullableGetter: nullableGetter,
+            modules: config?.modules);
+      } catch (e) {
+        Logger().e(e.toString());
+        // Continue to aggregator generation
+      }
+
+      if (!noAggregator) {
+        await _aggregatorGenerator.generate(
           rootPath: rootPath,
-          outputFolder: outputFolder,
-          templateArbFile: templateArbFile,
-          nullableGetter: nullableGetter,
-        );
-
-        if (generateOnlyRoot) exit(0);
-      }
-
-      if (generateOnlyModule && generateModule != null) {
-        await l10m.generateOnlyModuleTranslations(
           modulePath: modulePath,
           outputFolder: outputFolder,
-          templateArbFile: templateArbFile,
-          nullableGetter: nullableGetter,
-          generateModule: generateModule,
+          aggregatorOutputFile: aggregatorFile,
+          modulesConfig: config?.modules,
         );
-        exit(0);
       }
-
-      await l10m.generateModulesTranslations(
-          modulePath: modulePath,
-          outputFolder: outputFolder,
-          templateArbFile: templateArbFile,
-          nullableGetter: nullableGetter,
-          modules: config?.modules);
 
       exit(0);
     } catch (e) {
-      stderr.writeln(e);
+      Logger().e(e.toString());
       exit(1);
     }
   }
@@ -129,6 +157,30 @@ class L10mCli {
         negatable: false,
         defaultsTo: false,
       )
+      ..addOption(
+        'aggregator-file',
+        help: 'Path to the generated aggregator file',
+        defaultsTo: 'lib/translate.dart',
+      )
+      ..addFlag(
+        'no-aggregator',
+        help: 'Disable aggregator generation',
+        negatable: false,
+        defaultsTo: false,
+      )
+      ..addFlag(
+        'verbose',
+        abbr: 'v',
+        help: 'Enable verbose logging',
+        negatable: false,
+        defaultsTo: false,
+      )
+      ..addFlag(
+        'no-color',
+        help: 'Disable colored output',
+        negatable: false,
+        defaultsTo: false,
+      )
       ..addFlag('help', abbr: 'h', help: 'Show the help', negatable: false);
   }
 
@@ -147,9 +199,13 @@ class L10mCli {
           path.join(rootPath, 'l10n'),
           templateArbFile,
         );
-        print('✅ Root translations are valid.');
+        await l10m.checkLocalizationKeys(
+          path.join(rootPath, 'l10n'),
+          templateArbFile,
+        );
+        Logger().s('Root translations are valid.');
       } catch (e) {
-        stderr.writeln('❌ Root translations validation failed: $e');
+        Logger().e('Root translations validation failed: $e');
         hasError = true;
       }
     }
@@ -172,10 +228,14 @@ class L10mCli {
             arbDirectory,
             template,
           );
-          print('✅ Module "$featureName" translations are valid.');
+          await l10m.checkLocalizationKeys(
+            arbDirectory,
+            template,
+          );
+          Logger().s('Module "$featureName" translations are valid.');
         } catch (e) {
-          stderr.writeln(
-              '❌ Module "$featureName" translations validation failed: $e');
+          Logger().e(
+              'Module "$featureName" translations validation failed: $e');
           hasError = true;
         }
       }
@@ -188,3 +248,4 @@ class L10mCli {
     }
   }
 }
+

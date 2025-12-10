@@ -5,6 +5,7 @@ import 'package:path/path.dart' as path;
 
 import 'package:l10m/errors/duplicate_key_exception.dart';
 import 'package:l10m/errors/key_not_found_exception.dart';
+import 'package:l10m/src/utils/logger.dart';
 
 class ArbValidator {
   const ArbValidator();
@@ -159,12 +160,12 @@ class ArbValidator {
     try {
       if (await directory.exists()) {
         await directory.delete(recursive: true);
-        print(
-            '[l10m] ⚠️  Removed generated localization files at $normalizedPath due to duplicate keys.');
+        Logger().w(
+            'Removed generated localization files at $normalizedPath due to duplicate keys.');
       }
     } catch (e) {
-      print(
-          '[l10m] ❌ Failed to remove generated localization files at $normalizedPath: $e');
+      Logger().e(
+          'Failed to remove generated localization files at $normalizedPath: $e');
     }
   }
 }

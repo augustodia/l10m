@@ -6,6 +6,7 @@ import 'package:l10m/src/services/arb_validator.dart';
 import 'package:l10m/src/services/flutter_gen_l10n_runner.dart';
 
 export 'src/models/l10m_config.dart';
+export 'src/services/aggregator_generator.dart';
 
 export 'src/utils/string_utils.dart'
     show capitalize, underscoreToCamelCase, camelCaseToUnderscore;
